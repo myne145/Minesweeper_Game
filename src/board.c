@@ -133,9 +133,27 @@ int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size
  */
 void randomize_board(board* board) {
     board_assert(board);
+
+    //TODO dodać jakieś warunki żeby bomb nie było za mało i gra nie była za łatwa po za tymi koniecznymi
+    if(board->amountOfBombs >= board->rows * board->cols || board->amountOfBombs < 0) {
+        fprintf(stderr, "Invalid amount of bombs\n");
+        exit(-1);
+    }
+
     //dodawanie bomb
-    for(int i = 0; i < board->amountOfBombs; i++) {
-        board->P[rand() % board->rows][rand() % board->cols] = -2;
+    int bombIter = 0;
+    while(bombIter < board->amountOfBombs) {
+        size_t row = rand() % board->rows;
+        size_t col = rand() % board->cols;
+
+        //jeśli wylosowaliśmy index gdzie jest już bomba to pomijamy
+        if(board->P[row][col] == -2) {
+            continue;
+        }
+
+        board->P[row][col] = -2;
+
+        bombIter++;
     }
 
     //dodawanie numerków
