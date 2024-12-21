@@ -8,13 +8,13 @@ typedef struct Board {
     size_t rows;      // Liczba wierszy
     size_t cols;      // Liczba kolumn
 
-    int amountOfBombs; //to pole będzie jeszcze potrzebne, ilość bomb może być niestandardowa
+    size_t amountOfBombs; //to pole będzie jeszcze potrzebne, ilość bomb może być niestandardowa
 } board;
 
 //Funkcja alokująca pamiec dla planszy
 //@param rows - liczba wierszy
 //@param cols - liczba kolumn
-board* make_board(size_t rows, size_t cols, int amountOfBombs);
+board* make_board(size_t rows, size_t cols, size_t amountOfBombs);
 
 //Funkcja zwalniająca pamiec zaalokowaną dla planszy
 //@param Board - wskaźnik na plansze

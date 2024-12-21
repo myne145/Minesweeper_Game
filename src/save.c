@@ -14,8 +14,11 @@ void save_game(char* save_name,board* Board){
 
     ans = fwrite(&Board->rows, sizeof(size_t), 1, file); //zapisać liczbę wierszy
     assert(ans == 1); // sprawdzamy czy operacja się powiodła
-    ans =fwrite(&Board->cols, sizeof(size_t), 1, file); //zapisać liczbę kolumn
+    ans = fwrite(&Board->cols, sizeof(size_t), 1, file); //zapisać liczbę kolumn
     assert(ans == 1);
+    ans = fwrite(&Board->amountOfBombs, sizeof(size_t), 1, file); //zapisać liczbę bomb na planszy
+    assert(ans == 1);
+
     for (size_t i = 0; i < Board->rows; i++) {
         for (size_t j = 0; j < Board->cols; j++){
             ans = fwrite(&(Board->P[i][j]), sizeof(int), 1, file); // zapisać wartość pola
@@ -32,13 +35,17 @@ board* load_game(char* save_name){
     assert(file != NULL); //sprawdzamy czy udało się otworzyć plik
 
     int ans; // zmienna pomocnicza do sprawdzania czy operacja się powiodła
-    size_t rows = 0, cols = 0; // pomocnicze zmienne do wczytania rozmiaru planszy
+    size_t rows = 0, cols = 0, amountOfBombs = 0; // pomocnicze zmienne do wczytania rozmiaru planszy
 
     ans = fread(&rows, sizeof(size_t), 1, file); // wczytuje liczbę wierszy
     assert(ans == 1 && rows > 0); // sprawdzamy czy operacja się powiodła
     ans = fread(&cols, sizeof(size_t), 1, file); // wczytuje liczbę kolumn
     assert(ans == 1 && cols > 0); // sprawdzamy czy operacja się powiodła
-    board* Board = make_board(rows, cols, 0); // Tworzymy nową planszę
+    ans = fread(&amountOfBombs, sizeof(size_t), 1, file); // wczytuje liczbę kolumn
+    assert(ans == 1 && cols > 0); // sprawdzamy czy operacja się powiodła
+
+    printf("Amount of bombs: %zu", amountOfBombs);
+    board* Board = make_board(rows, cols, amountOfBombs); // Tworzymy nową planszę
     board_assert(Board); // Sprawdzamy poprawność planszy
     for (size_t i = 0; i < Board->rows; i++) {
         for (size_t j = 0; j < Board->cols; j++){

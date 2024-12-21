@@ -20,7 +20,7 @@ void board_assert(board* Board){
 
 
 // Funkcja alokująca plansze
-board* make_board(size_t rows, size_t cols, int amountOfBombs) {
+board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
     board* newBoard = (board*)malloc(sizeof(board));
     assert(newBoard != NULL); // Sprawdzamy czy alokacja się powiodła
 
