@@ -24,6 +24,10 @@ void free_board(board* Board);
 //@param Board - wskaźnik na plansze
 void print_board(board* Board);
 
+//Funkcja pokazująca plansze podczs gry (bez bomb)
+//@param Board - wskaźnik na plansze
+void print_board_game(board* Board);
+
 //Funkcja sprawdzająca poprawność planszy
 //@param Board - wskaźnik na plansze
 void board_assert(board* Board);
@@ -32,6 +36,6 @@ void board_assert(board* Board);
  * Funkcja wypełniająca planszę bombami i numerkami
  * @param board plansza którą chcemy wypełnić
  */
-void randomize_board(board* board);
+void randomize_board(board* board,size_t firstRow, size_t firstCol);
 
 #endif  // BOARD_H

@@ -24,7 +24,7 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
     board* newBoard = (board*)malloc(sizeof(board));
     assert(newBoard != NULL); // Sprawdzamy czy alokacja się powiodła
 
-    assert(rows != 0 && cols != 0); // Sprawdzamy czy liczba wierszy i kolumn jest różna od zera
+    assert(rows > 0 && cols > 0 && amountOfBombs>0 && amountOfBombs < (rows * cols)); // Sprawdzamy czy liczba wierszy i kolumn jest różna od zera
     
     newBoard->rows = rows;
     newBoard->cols = cols;
@@ -35,6 +35,12 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
     for(size_t i = 0; i < rows; i++){
         newBoard->P[i] = (int*)calloc(cols,sizeof(int)); // alokacja kolumn (domyslnie wypelnione zerami)
         assert(newBoard->P[i] != NULL); // Sprawdzamy czy alokacja się powiodła
+    }
+
+    for(size_t j = 0; j < newBoard->rows; j++){
+        for(size_t i = 0; i < newBoard->cols; i++){
+            newBoard->P[j][i] = -1; // Ustawiamy wszystkie pola na nieznane
+        }
     }
     
     return newBoard;
@@ -62,13 +68,61 @@ void print_board(board* Board){
             int val = Board->P[i][j]; // wartość pola
             switch(val){
                 case -1:
+                    printf(" -1 |");  // -1 to znacznik nieznanego pola
+                    break;
+                case 0:
+                    printf(" 0 |");  // 0 to znane puste pole
+                    break;
+                case -2:
+                    printf(" -2 |"); // -2 to znacznik miny
+                    break;
+                default:
+                    if(val >= 1 && val <= 8){
+                        printf(" %d |",val); // liczby od 1 do 8 to znaczniki ilości min w sąsiedztwie
+                    }else{
+                        printf(" ? "); // inna wartość to znacznik błędu
+                    }
+                    break;
+            }
+        }
+        printf("\n"); // nowa linia (nastepny wiersz)
+    }
+    printf("     "); // spacje na początku (zeby wyrownac od krawedzi)
+    for(size_t j = 0; j < Board->cols; j++){
+        printf("----"); // linia oddzielająca pola od numeracji na dole
+    }
+    printf("\n"); // nowa linia (po linii oddzielającej)
+    printf("    ");// spacje na początku (zeby wyrownac od krawedzi)
+    for(size_t j = 0; j < Board->cols; j++){
+        if( j <= 9){ // jeśli j jest jednocyfrowe to dodajemy spacje
+            printf(" %zu. ",j); //numer kolumny jesli jest jednocyfrowa dajemy spacje
+        }else{
+            printf("%zu. ",j); //jesli dwucyfrowa to nie dajemy spacji (zeby bylo rowno)(wiekszych nie zakladamy)
+        }
+    }
+    printf("\n");
+    printf("Number of bombs: %zu\n", Board->amountOfBombs); // ilość bomb
+}
+
+//Funkcja pokazująca board
+void print_board_game(board* Board){
+    board_assert(Board);
+    for(size_t i = 0; i < Board->rows; i++){
+        if( i <= 9){ // jeśli i jest jednocyfrowe to dodajemy spacje
+            printf(" ");
+        }
+        printf("%zu. |",i);       // numer wiersza
+        for(size_t j = 0; j < Board->cols; j++){
+            int val = Board->P[i][j]; // wartość pola
+            switch(val){
+                case -1:
                     printf(" - |");  // -1 to znacznik nieznanego pola
                     break;
                 case 0:
                     printf("   |");  // 0 to znane puste pole
                     break;
                 case -2:
-                    printf(" * |"); // -2 to znacznik miny
+                    printf(" - |"); // -2 to znacznik miny
                     break;
                 default:
                     if(val >= 1 && val <= 8){
@@ -134,7 +188,7 @@ int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size
  * 1-8 = ilosc bomb
  */
 //funkcja dodająca numerki i bomby do planszy
-void randomize_board(board* board) {
+void randomize_board(board* board, size_t firstRow, size_t firstCol) {
     board_assert(board);
 
     //TODO dodać jakieś warunki żeby bomb nie było za mało i gra nie była za łatwa po za tymi koniecznymi
@@ -151,6 +205,11 @@ void randomize_board(board* board) {
 
         //jeśli wylosowaliśmy index gdzie jest już bomba to pomijamy
         if(board->P[row][col] == -2) {
+            continue;
+        }
+
+        //jeśli wylosowaliśmy index gdzie jest pierwsze pole to pomijamy
+        if(board->P[firstCol][firstCol] == -2) {
             continue;
         }
 
