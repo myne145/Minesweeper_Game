@@ -13,14 +13,14 @@ void board_assert(board* Board){
     }
     for(size_t j = 0; j < Board->rows; j++){
         for(size_t i = 0; i < Board->cols; i++){
-            assert((Board->P[j][i] >= 1 && Board->P[i][j] <= 8)||(Board->P[i][j] == 0 || Board->P[i][j] == -1 || Board->P[i][j] == -2 )); // Sprawdzamy czy wartość pola jest poprawna
+            assert((Board->P[j][i] >= 1 && Board->P[j][i] <= 8)||(Board->P[j][i] == 0 || Board->P[j][i] == -1 || Board->P[j][i] == -2 )); // Sprawdzamy czy wartość pola jest poprawna
         }
     }
 }
 
 
 // Funkcja alokująca plansze
-board* make_board(size_t rows, size_t cols) {
+board* make_board(size_t rows, size_t cols, int amountOfBombs) {
     board* newBoard = (board*)malloc(sizeof(board));
     assert(newBoard != NULL); // Sprawdzamy czy alokacja się powiodła
 
@@ -28,6 +28,7 @@ board* make_board(size_t rows, size_t cols) {
     
     newBoard->rows = rows;
     newBoard->cols = cols;
+    newBoard->amountOfBombs = amountOfBombs;
     newBoard->P = (int**)malloc(rows * sizeof(int*)); //alokacja tablicy wskaźników (wierszy) na tablice intów (kolumny)
     assert(newBoard->P != NULL); // Sprawdzamy czy alokacja się powiodła
     
@@ -96,3 +97,65 @@ void print_board(board* Board){
     printf("\n");
 }
 
+size_t get_valid_bounds(size_t value, board* board) {
+    if(value - 1 < 0) {
+        value = 0;
+    }
+    if(value + 1 >= board->rows) {
+        value = board->rows - 1;
+    }
+    return value;
+}
+
+int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size_t endCol, board* board) {
+    int bombCtr = 0;
+    size_t tempB = startCol;
+    while(startRow <= endRow) {
+        while(startCol <= endCol) {
+
+            //sprawdzanie czy pole jest bombą i inkrementowanie licznika jak jest
+            if(board->P[startRow][startCol] == -2) {
+                bombCtr++;
+            }
+            startCol++;
+        }
+        startCol = tempB;
+        startRow++;
+    }
+    return bombCtr;
+}
+
+/*
+ * -2 = bomba
+ * -1 = nieznane
+ * 0 = odkryte
+ * 1-8 = ilosc bomb
+ */
+void randomize_board(board* board) {
+    board_assert(board);
+    //dodawanie bomb
+    for(int i = 0; i < board->amountOfBombs; i++) {
+        board->P[rand() % board->rows][rand() % board->cols] = -2;
+    }
+
+    //dodawanie numerków
+    for(int i = 0; i < board->rows; i++) {
+        for(int j = 0; j < board->cols; j++) {
+            //sprawdzamy czy pole jest bombą i pomijamy
+            if(board->P[i][j] == -2) {
+                continue;
+            }
+
+            //czy jak sprawdzamy ilość bomb w promieniu 1 to czy nie wyjdziemy po za granice tablicy
+            size_t startRow = get_valid_bounds(i - 1, board);
+            size_t startCol = get_valid_bounds(j - 1, board);
+            size_t endRow = get_valid_bounds(i + 1, board);
+            size_t endCol = get_valid_bounds(j + 1, board);
+
+            //ustawianie pól na numerki
+            int bombCount = get_bomb_count_in_area(startRow, startCol, endRow, endCol, board);
+            board->P[i][j] = bombCount;
+        }
+    }
+
+}

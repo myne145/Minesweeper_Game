@@ -38,7 +38,7 @@ board* load_game(char* save_name){
     assert(ans == 1 && rows > 0); // sprawdzamy czy operacja się powiodła
     ans = fread(&cols, sizeof(size_t), 1, file); // wczytuje liczbę kolumn
     assert(ans == 1 && cols > 0); // sprawdzamy czy operacja się powiodła
-    board* Board = make_board(rows, cols); // Tworzymy nową planszę
+    board* Board = make_board(rows, cols, 0); // Tworzymy nową planszę
     board_assert(Board); // Sprawdzamy poprawność planszy
     for (size_t i = 0; i < Board->rows; i++) {
         for (size_t j = 0; j < Board->cols; j++){
