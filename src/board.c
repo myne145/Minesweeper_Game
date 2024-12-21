@@ -97,6 +97,7 @@ void print_board(board* Board){
     printf("\n");
 }
 
+//helper do poprawienia indexu tablicy jeśli wychodzi po za granice
 size_t get_valid_bounds(size_t value, board* board) {
     if(value - 1 < 0) {
         value = 0;
@@ -107,6 +108,7 @@ size_t get_valid_bounds(size_t value, board* board) {
     return value;
 }
 
+//helper do zliczenia bomb w części planszy
 int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size_t endCol, board* board) {
     int bombCtr = 0;
     size_t tempB = startCol;
@@ -131,6 +133,7 @@ int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size
  * 0 = odkryte
  * 1-8 = ilosc bomb
  */
+//funkcja dodająca numerki i bomby do planszy
 void randomize_board(board* board) {
     board_assert(board);
 
