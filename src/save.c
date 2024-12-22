@@ -44,7 +44,6 @@ board* load_game(char* save_name){
     ans = fread(&amountOfBombs, sizeof(size_t), 1, file); // wczytuje liczbę kolumn
     assert(ans == 1 && cols > 0); // sprawdzamy czy operacja się powiodła
 
-    printf("Amount of bombs: %zu", amountOfBombs);
     board* Board = make_board(rows, cols, amountOfBombs); // Tworzymy nową planszę
     board_assert(Board); // Sprawdzamy poprawność planszy
     for (size_t i = 0; i < Board->rows; i++) {
