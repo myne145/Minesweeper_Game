@@ -33,3 +33,8 @@ void start_game_from_board(board* startingBoard) {
     free_board(startingBoard);
     free_board(userBoard);
 }
+
+
+void show_surrounding_empty_fields(board* gameBoard, int row, int col) {
+
+}
