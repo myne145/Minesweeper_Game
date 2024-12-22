@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include "board.h"
 
-//TODO: wsparcie dla planszy wczytywanych z pliku
 void start_game_from_board(board* startingBoard) {
     //plansza która ma już wszystkie pola odkryte
     board_assert(startingBoard);
