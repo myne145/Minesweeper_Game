@@ -5,7 +5,12 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
+
 #include "board.h"
+#include "save.h"
+
+static void game_loop(board* userBoard, board* filledBoard);
 
 void start_game_from_board(board* filledBoard) {
     //plansza która ma już wszystkie pola odkryte
@@ -19,31 +24,23 @@ void start_game_from_board(board* filledBoard) {
 
 
     size_t row, col;
-    printf("Enter row and column[row column]: ");
+    printf("First move[row column]: ");
     assert(scanf("%zu %zu", &row, &col) == 2);
     assert(row >= 0 && row < filledBoard->rows && col >= 0 && col < filledBoard->cols);
 
     randomize_board(filledBoard, row, col);
     userBoard->P[row][col] = filledBoard->P[row][col];
 
-    // int temp = filledBoard->P[row][col];
-    // filledBoard->P[row][col] = 0;
+    //(tymczasowo?) wyciągamy 1 iterację po za pętlę
     show_surrounding_empty_fields(filledBoard, userBoard, row, col);
-    // filledBoard->P[row][col] = temp;
-    // userBoard->P[row][col] = temp;
-    // switch (startingBoard->P[row][col]) {
-    //     case -1:
-    //         // userBoard->P[row][col] = 0;
-    //         show_surrounding_empty_fields(startingBoard, userBoard, row, col);
-    //         break;
-    // }
     print_board_game(userBoard);
-    // print_board_game(filledBoard);
-    // główna pętla gry
-    // na koniec zwolnienie pamięci
+
+    game_loop(userBoard, filledBoard);
+
     free_board(filledBoard);
     free_board(userBoard);
 }
+
 
 
 void show_surrounding_empty_fields(board* filledBoard, board* gameBoard, int row, int col) {
@@ -100,6 +97,57 @@ void show_surrounding_empty_fields(board* filledBoard, board* gameBoard, int row
             gameBoard->P[a][b] = 0;
             show_surrounding_empty_fields(filledBoard, gameBoard, a, b);
         }
+    }
+}
+
+void touch(size_t row, size_t col, board* userBoard, board* filledBoard)
+{
+    printf("touch %zu %zu\n", row, col);
+}
+
+void save_with_exit_confirmation(board* userBoard, board* filledBoard)
+{
+    //maksymalna długość pliku to 50
+    static int fileNameLengthMax = 2;
+    char filename[fileNameLengthMax];
+    char buf;
+    int i = 0;
+    while ((buf = fgetc(stdin)) != '\n' && i < fileNameLengthMax - 1)
+    {
+        filename[i] = buf;
+        i++;
+    }
+    filename[i] = '\0';
+    if (filename[0] == '\0')
+    {
+        fprintf(stderr, "Invalid filename\n");
+        save_with_exit_confirmation(userBoard, filledBoard);
+    }
+    save_game(filename, userBoard);
+
+
+    printf("Do you want to quit? (y/N)\n");
+    char c = fgetc(stdin);
+    if (c == 'y' || c == 'Y')
+    {
+        exit(0);
+    }
+}
+static void game_loop(board* userBoard, board* filledBoard)
+{
+    printf("Command:\t");
+    fgetc(stdin);
+    char command = fgetc(stdin);
+
+    if (command == 't')
+    {
+        size_t row, col;
+        assert(scanf("%zu %zu", &row, &col) == 2);
+        touch(row, col, userBoard, filledBoard);
+    }
+    else if (command == 's')
+    {
+        save_with_exit_confirmation(userBoard, filledBoard);
     }
 
 }
