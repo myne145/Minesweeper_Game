@@ -209,7 +209,7 @@ void randomize_board(board* board, size_t firstRow, size_t firstCol) {
         }
 
         //jeśli wylosowaliśmy index gdzie jest pierwsze pole to pomijamy
-        if(board->P[firstCol][firstCol] == -2) {
+        if(row == firstRow && col == firstCol) {
             continue;
         }
 
@@ -227,12 +227,12 @@ void randomize_board(board* board, size_t firstRow, size_t firstCol) {
             }
 
             //jeśli wylosowaliśmy index gdzie jest pierwsze pole to pomijamy
-            if(i == firstRow && j == firstCol) {
-                continue;
-            }
+            // if(i == firstRow && j == firstCol) {
+            //     continue;
+            // }
 
             //czy jak sprawdzamy ilość bomb w promieniu 1 to czy nie wyjdziemy po za granice tablicy
-            size_t startRow = get_valid_bounds(i - 1, board);
+            size_t startRow = get_valid_bounds(i - 1, board); //TODO refactor (game.c)
             size_t startCol = get_valid_bounds(j - 1, board);
             size_t endRow = get_valid_bounds(i + 1, board);
             size_t endCol = get_valid_bounds(j + 1, board);

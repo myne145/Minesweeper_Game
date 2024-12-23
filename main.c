@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "src/board.h"
@@ -10,6 +11,7 @@
 
 
 int main(int argc, char** argv) {
+    srand(time(NULL));
     int option;
     while((option = getopt(argc, argv, "l:m:h")) != -1) {
         size_t rows = 0;
