@@ -11,7 +11,6 @@
 
 
 int main(int argc, char** argv) {
-    srand(time(NULL));
     int option;
     while((option = getopt(argc, argv, "l:m:h")) != -1) {
         size_t rows = 0;
@@ -27,8 +26,13 @@ int main(int argc, char** argv) {
             case 'm':{
                 sscanf(optarg, "%zux%zux%zu", &rows, &cols, &bombs);
                 printf("Making game with size %zux%zu and %zu bombs.\n", rows, cols, bombs);
-                board* board = make_board(rows, cols, bombs);
-                start_game_from_board(board);
+                srand(time(NULL));
+                while (1)
+                    {
+                        board* board = make_board(rows, cols, bombs);
+                        start_game_from_board(board);
+                    }
+
                 break;
             }
             case 'h':{
