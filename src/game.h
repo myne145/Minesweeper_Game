@@ -17,6 +17,6 @@ void start_game_from_board(board* gameBoard);
  * @param row rząd
  * @param col kolumna
  */
-void show_surrounding_empty_fields(board* gameBoard, int row, int col);
+void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard);
 
 #endif //GAME_H

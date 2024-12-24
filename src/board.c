@@ -7,7 +7,7 @@ void board_content_assert(int** arrayToCheck, size_t rows, size_t cols)
 {
     for(size_t j = 0; j < rows; j++){
         for(size_t i = 0; i < cols; i++){
-            assert((arrayToCheck[j][i] >= 1 && arrayToCheck[j][i] <= 8)||(arrayToCheck[j][i] == 0 || arrayToCheck[j][i] == -1 || arrayToCheck[j][i] == -2 )); // Sprawdzamy czy wartość pola jest poprawna
+            assert((arrayToCheck[j][i] >= 1 && arrayToCheck[j][i] <= 8)||(arrayToCheck[j][i] == 0 || arrayToCheck[j][i] <= -1 || arrayToCheck[j][i] >= -3 )); // Sprawdzamy czy wartość pola jest poprawna
         }
     }
 }
@@ -144,7 +144,10 @@ void print_board_game(board* Board){
                     printf("   |");  // 0 to znane puste pole
                     break;
                 case -2:
-                    printf(" - |"); // -2 to znacznik miny
+                    printf(" * |"); // -2 to znacznik miny
+                    break;
+                case -3:
+                    printf(" F |"); // -3 to znacznik flagi
                     break;
                 default:
                     if(val >= 1 && val <= 8){
@@ -210,8 +213,18 @@ int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size
  * 1-8 = ilosc bomb
  */
 //funkcja dodająca numerki i bomby do planszy
+/*
+ *TODO: (notatka dla siebie, nie chce nikogo do roboty zaganiać)
+ * poprawić generowanie pola w indexie (firstRow, firstCol) aby mógł generować tam tylko "0"
+ * przypisanie na twardo do tego pola zmiennej 0 powoduje że bomby pojawiaja się bez numerku obok
+ * na tą chwilę numerki mogą się w tym polu generować
+ * przetestować można dla seedu 1735042975 i pola startowego (1,1)
+*/
 void randomize_solution_to_board(board* board, size_t firstRow, size_t firstCol) {
     board_assert(board);
+
+    //pole od którego zaczynamy zawsze jest puste
+    // board->SOLVED[firstRow][firstCol] = 0;
 
     //TODO dodać jakieś warunki żeby bomb nie było za mało i gra nie była za łatwa po za tymi koniecznymi
     if(board->amountOfBombs >= board->rows * board->cols || board->amountOfBombs < 0) {

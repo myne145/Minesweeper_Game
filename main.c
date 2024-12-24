@@ -26,8 +26,10 @@ int main(int argc, char** argv) {
             }
             case 'm':{
                 sscanf(optarg, "%zux%zux%zu", &rows, &cols, &bombs);
-                printf("Making game with size %zux%zu and %zu bombs.\n", rows, cols, bombs);
-                srand(time(NULL));
+                size_t seed = time(NULL);
+                // size_t seed = 1735042975;
+                printf("Making game with size %zux%zu and %zu bombs.\nSeed: %zu\n", rows, cols, bombs, seed);
+                srand(seed);
                 board* board = make_board(rows, cols, bombs);
                 start_game_from_board(board);
                 break;
