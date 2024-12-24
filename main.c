@@ -43,6 +43,7 @@ int main(int argc, char** argv) {
         size_t rows = 0;
         size_t cols = 0;
         size_t bombs = 0;
+        size_t seed = time(NULL);
         switch (option) {
             case 'l':
                 printf("Loading game from file: %s\n", optarg);
@@ -53,8 +54,8 @@ int main(int argc, char** argv) {
 
             case 'm':
                 sscanf(optarg, "%zux%zux%zu", &rows, &cols, &bombs);
-                // size_t seed = time(NULL);
-                size_t seed = 1735042975;
+
+                // size_t seed = 1735042975;
                 printf("Making game with size %zux%zu and %zu bombs.\nSeed: %zu\n", rows, cols, bombs, seed);
                 srand(seed);
                 board* gameBoard = make_board(rows, cols, bombs);
