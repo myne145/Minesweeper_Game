@@ -89,14 +89,17 @@ void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
             }
 
             //jeśli pole jest bombą też pomijamy, ale zamiast je odkrywać, pokazujemy userowi że pole jest nieznane
-            if (gameBoard->SOLVED[a][b] == -2)
+            //warunek 2 i 3 - pole też nie może być flagą, jako że flagi zaznaczamy tylko na planszy użytkownika,
+            //sprawdzamy też i ją żeby przypadkiem nie usunąć flagi  planszy
+            if (gameBoard->SOLVED[a][b] == -2 && gameBoard->P[a][b] != -3 && gameBoard->P[a][b] != -4)
             {
                 gameBoard->P[a][b] = -1;
                 continue;
             }
 
             //jeśli pole na planszy użytkownika zostało odkryte to też pomijamy je
-            if (gameBoard->P[a][b] != - 1)
+            //również jeśli pole jest flagą lub ? którą uzytkownik postawił to pomijamy
+            if (gameBoard->P[a][b] != - 1 || gameBoard->P[a][b] == -3 || gameBoard->P[a][b] == -4)
             {
                 continue;
             }
@@ -113,19 +116,6 @@ void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
             show_surrounding_empty_fields(a, b, gameBoard);
         }
     }
-}
-
-void place_flag(size_t row, size_t col, board* gameBoard)
-{
-    //gdy stawiamy flagę nigdy nie odkrywamy więcej pól
-    // show_surrounding_empty_fields(row, col, gameBoard);
-    if (row >= gameBoard->rows || col >= gameBoard->cols || gameBoard->P[row][col] != -1)
-    {
-        printf("Invalid position!\n"); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
-        return;
-    }
-
-    gameBoard->P[row][col] = -3;
 }
 
 void save_with_exit_confirmation(board* gameBoard)
@@ -157,6 +147,42 @@ void save_with_exit_confirmation(board* gameBoard)
     }
 }
 
+void place_flag(size_t row, size_t col, board* gameBoard)
+{
+    //gdy stawiamy flagę nigdy nie odkrywamy więcej pól
+    // show_surrounding_empty_fields(row, col, gameBoard);
+    if (row >= gameBoard->rows || col >= gameBoard->cols || gameBoard->P[row][col] != -1)
+    {
+        printf("Invalid position!\n"); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
+        return;
+    }
+
+    gameBoard->P[row][col] = -3;
+}
+
+void uncover_field(size_t row, size_t col, board* gameBoard)
+{
+    //sprawdzamy czy pole da się odsłonić - czyli czy nie wychodzi po za granice planszy i czy nie jest odsłonięte / nie jest bombą
+    //możemy odsłonić tylko: nieznane pola (-1), bomby (-2), flagi (-3) i znaki zapytania (-4)
+    if (row >= gameBoard->rows || col >= gameBoard->cols || (gameBoard->P[row][col] < 1 && gameBoard->P[row][col] > 8))
+    {
+        printf("Invalid position!\n"); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
+        return;
+    }
+    gameBoard->P[row][col] = gameBoard->SOLVED[row][col]; //odsłonięcie pola - przypisanie wartości z planszy rozwiązania do planszy usera
+
+    //jeśli pole jest bombą i je odsłoniliśmy to przegrywamy
+    if (gameBoard->SOLVED[row][col] == -2)
+    {
+        printf("Przegrałeś :(\n");
+        exit(0);
+    }
+
+    //rekurencyjna funkcja która odsłoni wszystkie sąsiadujące ze sobą pola z zeroma bombami
+    show_surrounding_empty_fields(row, col, gameBoard);
+
+}
+
 static void game_loop(board* gameBoard)
 {
     int gameStatus = 1;
@@ -172,15 +198,29 @@ static void game_iter(board* gameBoard)
     fgetc(stdin); //usuwa znak nowej linii z poprzedniej komendy
     char command = fgetc(stdin);
     fgetc(stdin); //usuwa spacje pomiedzy komendą a danymi
-    if (command == 't')
+
+    if (command == 'f') //stawiamy flage
     {
         size_t row, col;
         assert(scanf("%zu %zu", &row, &col) == 2);
         place_flag(row, col, gameBoard);
     }
+    else if (command == 'r') //odsłaniamy pole
+    {
+        size_t row, col;
+        assert(scanf("%zu %zu", &row, &col) == 2);
+        uncover_field(row, col, gameBoard);
+
+    }
     else if (command == 's')
     {
         save_with_exit_confirmation(gameBoard);
+    }
+    else if (command == 'd')
+    {
+        size_t row, col;
+        assert(scanf("%zu %zu", &row, &col) == 2);
+        printf("Element at index (%zu, %zu) is %d\n", row, col, gameBoard->P[row][col]);
     }
     else if (command == 'h')
     {
