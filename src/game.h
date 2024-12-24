@@ -7,9 +7,9 @@
 
 /**
  * Zaczyna grę z podanej planszy
- * @param filledBoard plansza z której chcemy rozpocząć grę
+ * @param gameBoard plansza z której chcemy rozpocząć grę
  */
-void start_game_from_board(board* filledBoard);
+void start_game_from_board(board* gameBoard);
 
 /**
  * W otoczeniu pola (row,column) szuka i odsłania wszystkie pola które są puste (nie są bombami, nie sąsiadują z żadnymi)
@@ -17,6 +17,6 @@ void start_game_from_board(board* filledBoard);
  * @param row rząd
  * @param col kolumna
  */
-void show_surrounding_empty_fields(board* filledBoard, board* gameBoard, int row, int col);
+void show_surrounding_empty_fields(board* gameBoard, int row, int col);
 
 #endif //GAME_H

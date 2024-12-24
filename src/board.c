@@ -3,19 +3,29 @@
 #include <assert.h> // Dla assert
 #include <stdio.h> // Dla printf
 
+void board_content_assert(int** arrayToCheck, size_t rows, size_t cols)
+{
+    for(size_t j = 0; j < rows; j++){
+        for(size_t i = 0; i < cols; i++){
+            assert((arrayToCheck[j][i] >= 1 && arrayToCheck[j][i] <= 8)||(arrayToCheck[j][i] == 0 || arrayToCheck[j][i] == -1 || arrayToCheck[j][i] == -2 )); // Sprawdzamy czy wartość pola jest poprawna
+        }
+    }
+}
 // Funkcja sprawdzająca poprawność planszy
 void board_assert(board* Board){
     assert(Board != NULL); // Sprawdzamy czy wskaźnik nie jest nullem
     assert(Board->rows != 0 && Board->cols != 0); // Sprawdzamy czy liczba wierszy i kolumn jest różna od zera
-    assert(Board->P != NULL); // Sprawdzamy czy wskaźnik nie jest nullem
+    assert(Board->P != NULL); // Sprawdzamy czy wskaźnik na P nie jest nullem
+    assert(Board->SOLVED != NULL); // Sprawdzamy czy wskaźnik na rozwiązanie nie jest nullem
+
     for(size_t i = 0; i < Board->rows; i++){
         assert(Board->P[i] != NULL); // Sprawdzamy czy wskaźnik nie jest nullem
     }
-    for(size_t j = 0; j < Board->rows; j++){
-        for(size_t i = 0; i < Board->cols; i++){
-            assert((Board->P[j][i] >= 1 && Board->P[j][i] <= 8)||(Board->P[j][i] == 0 || Board->P[j][i] == -1 || Board->P[j][i] == -2 )); // Sprawdzamy czy wartość pola jest poprawna
-        }
-    }
+
+    //dla tablic P i SOLVED sprawdzamy czy mają poprawne numerki w środku
+    board_content_assert(Board->P, Board->rows, Board->cols);
+    board_content_assert(Board->SOLVED, Board->rows, Board->cols);
+
 }
 
 
@@ -29,17 +39,27 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
     newBoard->rows = rows;
     newBoard->cols = cols;
     newBoard->amountOfBombs = amountOfBombs;
-    newBoard->P = (int**)malloc(rows * sizeof(int*)); //alokacja tablicy wskaźników (wierszy) na tablice intów (kolumny)
-    assert(newBoard->P != NULL); // Sprawdzamy czy alokacja się powiodła
-    
+
+    //alokacja wierszy dla obu tablic
+    newBoard->P = (int**)malloc(rows * sizeof(int*));
+    newBoard->SOLVED = (int**)malloc(rows * sizeof(int*));
+
+    // Sprawdzamy czy alokacja się powiodła
+    assert(newBoard->P != NULL);
+    assert(newBoard->SOLVED != NULL);
+
+    // alokacja kolumn dla obu tablic (domyslnie wypelnione zerami)
     for(size_t i = 0; i < rows; i++){
-        newBoard->P[i] = (int*)calloc(cols,sizeof(int)); // alokacja kolumn (domyslnie wypelnione zerami)
+        newBoard->P[i] = (int*)calloc(cols,sizeof(int));
+        newBoard->SOLVED[i] = (int*)calloc(cols,sizeof(int));
+
         assert(newBoard->P[i] != NULL); // Sprawdzamy czy alokacja się powiodła
     }
 
     for(size_t j = 0; j < newBoard->rows; j++){
         for(size_t i = 0; i < newBoard->cols; i++){
             newBoard->P[j][i] = -1; // Ustawiamy wszystkie pola na nieznane
+            newBoard->SOLVED[j][i] = -1; // Ustawiamy wszystkie pola na nieznane
         }
     }
     
@@ -51,8 +71,10 @@ void free_board(board* Board){
     board_assert(Board);
     for(size_t i = 0; i < Board->rows; i++){
         free(Board->P[i]); // zwalniamy kolumny
+        free(Board->SOLVED[i]); // zwalniamy kolumny
     }
     free(Board->P); // zwalniamy wiersze
+    free(Board->SOLVED); // zwalniamy wiersze
     free(Board);    // zwalniamy całą plansze
 }
 
@@ -170,7 +192,7 @@ int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size
         while(startCol <= endCol) {
 
             //sprawdzanie czy pole jest bombą i inkrementowanie licznika jak jest
-            if(board->P[startRow][startCol] == -2) {
+            if(board->SOLVED[startRow][startCol] == -2) {
                 bombCtr++;
             }
             startCol++;
@@ -188,7 +210,7 @@ int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size
  * 1-8 = ilosc bomb
  */
 //funkcja dodająca numerki i bomby do planszy
-void randomize_board(board* board, size_t firstRow, size_t firstCol) {
+void randomize_solution_to_board(board* board, size_t firstRow, size_t firstCol) {
     board_assert(board);
 
     //TODO dodać jakieś warunki żeby bomb nie było za mało i gra nie była za łatwa po za tymi koniecznymi
@@ -204,7 +226,7 @@ void randomize_board(board* board, size_t firstRow, size_t firstCol) {
         size_t col = rand() % board->cols;
 
         //jeśli wylosowaliśmy index gdzie jest już bomba to pomijamy
-        if(board->P[row][col] == -2) {
+        if(board->SOLVED[row][col] == -2) {
             continue;
         }
 
@@ -213,7 +235,7 @@ void randomize_board(board* board, size_t firstRow, size_t firstCol) {
             continue;
         }
 
-        board->P[row][col] = -2;
+        board->SOLVED[row][col] = -2;
 
         bombIter++;
     }
@@ -222,7 +244,7 @@ void randomize_board(board* board, size_t firstRow, size_t firstCol) {
     for(int i = 0; i < board->rows; i++) {
         for(int j = 0; j < board->cols; j++) {
             //sprawdzamy czy pole jest bombą i pomijamy
-            if(board->P[i][j] == -2) {
+            if(board->SOLVED[i][j] == -2) {
                 continue;
             }
 
@@ -239,7 +261,7 @@ void randomize_board(board* board, size_t firstRow, size_t firstCol) {
 
             //ustawianie pól na numerki
             int bombCount = get_bomb_count_in_area(startRow, startCol, endRow, endCol, board);
-            board->P[i][j] = bombCount;
+            board->SOLVED[i][j] = bombCount;
         }
     }
 }

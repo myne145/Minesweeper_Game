@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
             case 'l':{
                 printf("Loading game from file: %s\n", optarg);
                 board* loadedBoard = load_game(optarg);
+                print_board_game(loadedBoard);
                 start_game_from_board(loadedBoard);
                 break;
             }
