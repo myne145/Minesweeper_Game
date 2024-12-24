@@ -178,6 +178,12 @@ void uncover_field(size_t row, size_t col, board* gameBoard)
         exit(0);
     }
 
+    //jeśli pole które odkryliśmy jest numerkiem to nie wywołujemy rekurencji
+    if (gameBoard->P[row][col] >= 1 && gameBoard->P[row][col] <= 8)
+    {
+        return;
+    }
+
     //rekurencyjna funkcja która odsłoni wszystkie sąsiadujące ze sobą pola z zeroma bombami
     show_surrounding_empty_fields(row, col, gameBoard);
 
