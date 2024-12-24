@@ -150,14 +150,17 @@ void save_with_exit_confirmation(board* gameBoard)
 void place_flag(size_t row, size_t col, board* gameBoard)
 {
     //gdy stawiamy flagę nigdy nie odkrywamy więcej pól
-    // show_surrounding_empty_fields(row, col, gameBoard);
-    if (row >= gameBoard->rows || col >= gameBoard->cols || gameBoard->P[row][col] != -1)
+
+    //tutaj sprawdzamy czy index nie wychodzi po za granice tablicy i czy pole jest nieznane (-1) albo czy jest flagą
+    if (row >= gameBoard->rows || col >= gameBoard->cols || (gameBoard->P[row][col] != -1 && gameBoard->P[row][col] != -3))
     {
         printf("Invalid position!\n"); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
         return;
     }
 
-    gameBoard->P[row][col] = -3;
+    //jeśli w danym polu jest już flaga to usuwamy flagę i przywracamy nieznane pole
+    int val = gameBoard->P[row][col] == -1 ? -3 : -1;
+    gameBoard->P[row][col] = val;
 }
 
 void uncover_field(size_t row, size_t col, board* gameBoard)
@@ -198,6 +201,9 @@ static void game_loop(board* gameBoard)
     }
 }
 
+/*TODO: jak sie wpisze więcej komend w jednej linijce (np. f s s) to wykonuje się i postawienie flagi w miejscu ASCI(?) (s, s)
+ * oraz zapisanie gry do pliku o nazwie s - trzeba poprawić całą tą funkcję
+*/
 static void game_iter(board* gameBoard)
 {
     printf("Command (h for help):\t");
@@ -208,15 +214,24 @@ static void game_iter(board* gameBoard)
     if (command == 'f') //stawiamy flage
     {
         size_t row, col;
-        assert(scanf("%zu %zu", &row, &col) == 2);
-        place_flag(row, col, gameBoard);
+        if (scanf("%zu %zu", &row, &col) != 2)
+        {
+            printf("Invalid values!\n");
+        } else //jeśli się powiodło
+        {
+            place_flag(row, col, gameBoard);
+        }
     }
     else if (command == 'r') //odsłaniamy pole
     {
         size_t row, col;
-        assert(scanf("%zu %zu", &row, &col) == 2);
-        uncover_field(row, col, gameBoard);
-
+        if (scanf("%zu %zu", &row, &col) != 2)
+        {
+            printf("Invalid values!\n");
+        } else //jeśli się powiodło
+        {
+            uncover_field(row, col, gameBoard);
+        }
     }
     else if (command == 's')
     {
