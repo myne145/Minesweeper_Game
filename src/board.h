@@ -4,10 +4,11 @@
 
 // Struktura planszy 
 typedef struct Board {
-    int** P;       // Tablica 2D (Pola) [rows][columns]
+    int** P;       // Tablica 2D (Pola) [rows][columns] - tablica którą "rozwiązuje" użytkownik
+    int** SOLVED; // Tablica 2D (Pola) [rows][columns] - rozwiązana tablica P
+
     size_t rows;      // Liczba wierszy
     size_t cols;      // Liczba kolumn
-
     size_t amountOfBombs; //to pole będzie jeszcze potrzebne, ilość bomb może być niestandardowa
 } board;
 
@@ -36,6 +37,6 @@ void board_assert(board* Board);
  * Funkcja wypełniająca planszę bombami i numerkami
  * @param board plansza którą chcemy wypełnić
  */
-void randomize_board(board* board,size_t firstRow, size_t firstCol);
+void randomize_solution_to_board(board* board,size_t firstRow, size_t firstCol);
 
 #endif  // BOARD_H

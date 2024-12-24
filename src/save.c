@@ -19,9 +19,18 @@ void save_game(char* save_name,board* Board){
     ans = fwrite(&Board->amountOfBombs, sizeof(size_t), 1, file); //zapisać liczbę bomb na planszy
     assert(ans == 1);
 
+    //zapisywanie tablicy użytkownika
     for (size_t i = 0; i < Board->rows; i++) {
         for (size_t j = 0; j < Board->cols; j++){
             ans = fwrite(&(Board->P[i][j]), sizeof(int), 1, file); // zapisać wartość pola
+            assert(ans == 1);
+        }
+    }
+
+    //zapisywanie tablicy z rozwiązaniem
+    for (size_t i = 0; i < Board->rows; i++) {
+        for (size_t j = 0; j < Board->cols; j++){
+            ans = fwrite(&(Board->SOLVED[i][j]), sizeof(int), 1, file); // zapisać wartość pola
             assert(ans == 1);
         }
     }
@@ -33,6 +42,7 @@ board* load_game(char* save_name){
     assert(save_name != NULL);  // Sprawdzamy czy nazwa nie jest pusta
     FILE *file = fopen(save_name, "rb");  // Otwieramy plik do odczytu binarnego
     assert(file != NULL); //sprawdzamy czy udało się otworzyć plik
+
 
     int ans; // zmienna pomocnicza do sprawdzania czy operacja się powiodła
     size_t rows = 0, cols = 0, amountOfBombs = 0; // pomocnicze zmienne do wczytania rozmiaru planszy
@@ -46,9 +56,18 @@ board* load_game(char* save_name){
 
     board* Board = make_board(rows, cols, amountOfBombs); // Tworzymy nową planszę
     board_assert(Board); // Sprawdzamy poprawność planszy
+    //wczytywanie tablicy użytkownika
     for (size_t i = 0; i < Board->rows; i++) {
         for (size_t j = 0; j < Board->cols; j++){
             ans = fread(&(Board->P[i][j]), sizeof(int), 1, file); // wczytuje wartość pola
+            assert(ans == 1);
+        }
+    }
+
+    //wczytywanie tablicy z rozwiązaniem
+    for (size_t i = 0; i < Board->rows; i++) {
+        for (size_t j = 0; j < Board->cols; j++){
+            ans = fread(&(Board->SOLVED[i][j]), sizeof(int), 1, file); // wczytuje wartość pola
             assert(ans == 1);
         }
     }
