@@ -68,8 +68,9 @@ int main(int argc, char** argv) {
                 //hard
                 char* preset = malloc(6 * sizeof(char));
                 sscanf(optarg, "%s", preset);
-                printf("%s\n", preset);
                 set_values_from_preset(preset, &rows, &cols, &bombs);
+                printf("Making game with size %zux%zu and %zu bombs.\nSeed: %zu\n", rows, cols, bombs, seed);
+                printf("Preset:9  %s\n", preset);
                 srand(seed);
                 board* gameBoard1 = make_board(rows, cols, bombs);
                 start_game_from_board(gameBoard1);
