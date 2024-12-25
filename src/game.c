@@ -234,11 +234,11 @@ static void game_loop(board* gameBoard)
 
     if (wasGameWon == 1)
     {
-        printf("Wygrałeś :)\n");
+        printf("You won! :)\n");
         exit(0);
     }
 
-    printf("Przegrałeś :(\n");
+    printf("You lost :(\n");
     exit(0);
 }
 
@@ -252,52 +252,77 @@ static void game_loop(board* gameBoard)
 int game_iter(board* gameBoard)
 {
     printf("Command (h for help):\t");
-    fgetc(stdin); //usuwa znak nowej linii z poprzedniej komendy
-    char command = fgetc(stdin);
-    fgetc(stdin); //usuwa spacje pomiedzy komendą a danymi
+    char* line = NULL;
+    size_t size;
 
-    if (command == 'f') //stawiamy flage
+    //sprawdzamy czy udało się wczytać linie
+    if (getline(&line, &size, stdin) == -1)
     {
-        size_t row, col;
-        if (scanf("%zu %zu", &row, &col) != 2)
-        {
-            printf("Invalid values!\n");
-        } else //jeśli się powiodło
-        {
+        printf("Invalid command!\n");
+        return 1;
+    }
+    size_t row, col;
+
+    //pierwszy symbol w linijce to komenda
+    switch (*line)
+    {
+        case 'f':
+            sscanf(line+1, "%zu %zu", &row, &col);
             place_flag(row, col, gameBoard);
-        }
-    }
-    else if (command == 'r') //odsłaniamy pole
-    {
-        size_t row, col;
-        if (scanf("%zu %zu", &row, &col) != 2)
-        {
-            printf("Invalid values!\n");
-        }
+            break;
 
-        if (uncover_field(row, col, gameBoard) == 0)
-        {
-            printf("Przegrałeś :(\n");
-            exit(0);
-        }
+
     }
-    else if (command == 's')
-    {
-        save_with_exit_confirmation(gameBoard);
-    }
-    else if (command == 'd')
-    {
-        size_t row, col;
-        assert(scanf("%zu %zu", &row, &col) == 2);
-        printf("Element at index (%zu, %zu) is %d, in user's board is %d\n", row, col, gameBoard->SOLVED[row][col], gameBoard->P[row][col]);
-    }
-    else if (command == 'h')
-    {
-        printf("Help:\n"
-               "\t• f [row][column] - places a flag in position [row][column]\n"
-               "\t• r [row][column] - reveals a field in position [row][column]\n"
-               "\t• ? [row][column] - marks the field at [row][column] as \"?\"\n"
-               "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
-    }
+
+
+
+
+    // fgetc(stdin); //usuwa znak nowej linii z poprzedniej komendy
+    // char command = fgetc(stdin);
+    // fgetc(stdin); //usuwa spacje pomiedzy komendą a danymi
+    //
+    // if (command == 'f') //stawiamy flage
+    // {
+    //     size_t row, col;
+    //     if (scanf("%zu %zu", &row, &col) != 2)
+    //     {
+    //         printf("Invalid values!\n");
+    //     } else //jeśli się powiodło
+    //     {
+    //         place_flag(row, col, gameBoard);
+    //     }
+    // }
+    // else if (command == 'r') //odsłaniamy pole
+    // {
+    //     size_t row, col;
+    //     if (scanf("%zu %zu", &row, &col) != 2)
+    //     {
+    //         printf("Invalid values!\n");
+    //     }
+    //
+    //     if (uncover_field(row, col, gameBoard) == 0)
+    //     {
+    //         printf("Przegrałeś :(\n");
+    //         exit(0);
+    //     }
+    // }
+    // else if (command == 's')
+    // {
+    //     save_with_exit_confirmation(gameBoard);
+    // }
+    // else if (command == 'd')
+    // {
+    //     size_t row, col;
+    //     assert(scanf("%zu %zu", &row, &col) == 2);
+    //     printf("Element at index (%zu, %zu) is %d, in user's board is %d\n", row, col, gameBoard->SOLVED[row][col], gameBoard->P[row][col]);
+    // }
+    // else if (command == 'h')
+    // {
+    //     printf("Help:\n"
+    //            "\t• f [row][column] - places a flag in position [row][column]\n"
+    //            "\t• r [row][column] - reveals a field in position [row][column]\n"
+    //            "\t• ? [row][column] - marks the field at [row][column] as \"?\"\n"
+    //            "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
+    // }
     return 1;
 }
