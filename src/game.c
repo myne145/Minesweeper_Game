@@ -10,7 +10,7 @@
 #include "board.h"
 #include "save.h"
 
-static void game_iter(board* gameBoard);
+static int game_iter(board* gameBoard);
 static void game_loop(board* gameBoard);
 
 void start_game_from_board(board* gameBoard) {
@@ -163,48 +163,93 @@ void place_flag(size_t row, size_t col, board* gameBoard)
     gameBoard->P[row][col] = val;
 }
 
-void uncover_field(size_t row, size_t col, board* gameBoard)
+//zwraca 1 jeśli pole nie jest bombą
+//zwraca 0 jeśli pole jest bombą
+int uncover_field(size_t row, size_t col, board* gameBoard)
 {
     //sprawdzamy czy pole da się odsłonić - czyli czy nie wychodzi po za granice planszy i czy nie jest odsłonięte / nie jest bombą
     //możemy odsłonić tylko: nieznane pola (-1), bomby (-2), flagi (-3) i znaki zapytania (-4)
     if (row >= gameBoard->rows || col >= gameBoard->cols || (gameBoard->P[row][col] < 1 && gameBoard->P[row][col] > 8))
     {
         printf("Invalid position!\n"); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
-        return;
+        return 1;
     }
     gameBoard->P[row][col] = gameBoard->SOLVED[row][col]; //odsłonięcie pola - przypisanie wartości z planszy rozwiązania do planszy usera
 
     //jeśli pole jest bombą i je odsłoniliśmy to przegrywamy
     if (gameBoard->SOLVED[row][col] == -2)
     {
-        printf("Przegrałeś :(\n");
-        exit(0);
+        return 0;
     }
 
     //jeśli pole które odkryliśmy jest numerkiem to nie wywołujemy rekurencji
     if (gameBoard->P[row][col] >= 1 && gameBoard->P[row][col] <= 8)
     {
-        return;
+        return 1;
     }
 
     //rekurencyjna funkcja która odsłoni wszystkie sąsiadujące ze sobą pola z zeroma bombami
     show_surrounding_empty_fields(row, col, gameBoard);
-
+    return 1;
 }
+
+//zwraca 0 jeśli gra nie wygrana (nie musi być przegrana!)
+//zwraca 1 jeśli gra wygrana
+static int is_game_won(board* gameBoard)
+{
+    //sprawdzamy czy wszystkie elementy z tablicy użytkownika są takie same jak rozwiązanie
+    //jeśli tak to wygrywamy, jeśli pole to flaga to pomijamy
+    //bo warunek taki nie byłby nigdy spełniony bo flagi stawiamy tylko na planszy użytkownika
+    for (int i = 0; i < gameBoard->rows; i++)
+    {
+        for (int j = 0; j < gameBoard->cols; j++)
+        {
+            //warunek do flagi
+            if (gameBoard->P[i][j] == -3 || gameBoard->P[i][j] == -4)
+            {
+                continue;
+            }
+
+            //jeśli pola nie sa takie same
+            if (gameBoard->P[i][j] != gameBoard->SOLVED[i][j])
+            {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
 
 static void game_loop(board* gameBoard)
 {
     int gameStatus = 1;
+    int wasGameWon = 0;
     while (gameStatus)
     {
-        game_iter(gameBoard);
+        gameStatus = (game_iter(gameBoard) != (wasGameWon = is_game_won(gameBoard)));
+        print_board_game(gameBoard);
     }
+
+    if (wasGameWon == 1)
+    {
+        printf("Wygrałeś :)\n");
+        exit(0);
+    }
+
+    printf("Przegrałeś :(\n");
+    exit(0);
 }
+
+
 
 /*TODO: jak sie wpisze więcej komend w jednej linijce (np. f s s) to wykonuje się i postawienie flagi w miejscu ASCI(?) (s, s)
  * oraz zapisanie gry do pliku o nazwie s - trzeba poprawić całą tą funkcję
 */
-static void game_iter(board* gameBoard)
+//zwraca 1 jeśli gra jest w toku
+//zwraca 0 jeśli mamy zwrócić wynik
+int game_iter(board* gameBoard)
 {
     printf("Command (h for help):\t");
     fgetc(stdin); //usuwa znak nowej linii z poprzedniej komendy
@@ -228,9 +273,12 @@ static void game_iter(board* gameBoard)
         if (scanf("%zu %zu", &row, &col) != 2)
         {
             printf("Invalid values!\n");
-        } else //jeśli się powiodło
+        }
+
+        if (uncover_field(row, col, gameBoard) == 0)
         {
-            uncover_field(row, col, gameBoard);
+            printf("Przegrałeś :(\n");
+            exit(0);
         }
     }
     else if (command == 's')
@@ -241,7 +289,7 @@ static void game_iter(board* gameBoard)
     {
         size_t row, col;
         assert(scanf("%zu %zu", &row, &col) == 2);
-        printf("Element at index (%zu, %zu) is %d\n", row, col, gameBoard->P[row][col]);
+        printf("Element at index (%zu, %zu) is %d, in user's board is %d\n", row, col, gameBoard->SOLVED[row][col], gameBoard->P[row][col]);
     }
     else if (command == 'h')
     {
@@ -250,8 +298,6 @@ static void game_iter(board* gameBoard)
                "\t• r [row][column] - reveals a field in position [row][column]\n"
                "\t• ? [row][column] - marks the field at [row][column] as \"?\"\n"
                "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
-        return;
     }
-
-    print_board_game(gameBoard);
+    return 1;
 }
