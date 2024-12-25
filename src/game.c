@@ -193,35 +193,56 @@ int uncover_field(size_t row, size_t col, board* gameBoard)
     return 1;
 }
 
+//zwraca 0 jeśli gra nie wygrana (nie musi być przegrana!)
+//zwraca 1 jeśli gra wygrana
+static int is_game_won(board* gameBoard)
+{
+    //sprawdzamy czy wszystkie elementy z tablicy użytkownika są takie same jak rozwiązanie
+    //jeśli tak to wygrywamy, jeśli pole to flaga to pomijamy
+    //bo warunek taki nie byłby nigdy spełniony bo flagi stawiamy tylko na planszy użytkownika
+    for (int i = 0; i < gameBoard->rows; i++)
+    {
+        for (int j = 0; j < gameBoard->cols; j++)
+        {
+            //warunek do flagi
+            if (gameBoard->P[i][j] == -3 || gameBoard->P[i][j] == -4)
+            {
+                continue;
+            }
+
+            //jeśli pola nie sa takie same
+            if (gameBoard->P[i][j] != gameBoard->SOLVED[i][j])
+            {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+
 static void game_loop(board* gameBoard)
 {
     int gameStatus = 1;
+    int wasGameWon = 0;
     while (gameStatus)
     {
-        gameStatus = game_iter(gameBoard);
+        gameStatus = (game_iter(gameBoard) != (wasGameWon = is_game_won(gameBoard)));
         print_board_game(gameBoard);
     }
 
-    //todo: dodać checki co jak pole jest flagą
-    // //sprawdzamy czy wszystkie elementy z tablicy użytkownika są takie same jak rozwiązanie
-    // //jeśli tak oznacza to że plansza została w całości rozwiąazna czyli wygrywamy
-    // //jeśli nie to przegrywamy, bo user musiał kliknąć na bombę
-    // for (int i = 0; i < gameBoard->rows; i++)
-    // {
-    //     for (int j = 0; j < gameBoard->cols; j++)
-    //     {
-    //         if (gameBoard->P[i][j] != gameBoard->SOLVED[i][j])
-    //         {
-    //             printf("Przegrałeś :(\n");
-    //             exit(0);
-    //         }
-    //
-    //     }
-    // }
-    // printf("Wygrałeś! :)\n");
-    // exit(0);
+    if (wasGameWon == 1)
+    {
+        printf("Wygrałeś :)\n");
+        exit(0);
+    }
 
+    printf("Przegrałeś :(\n");
+    exit(0);
 }
+
+
 
 /*TODO: jak sie wpisze więcej komend w jednej linijce (np. f s s) to wykonuje się i postawienie flagi w miejscu ASCI(?) (s, s)
  * oraz zapisanie gry do pliku o nazwie s - trzeba poprawić całą tą funkcję
