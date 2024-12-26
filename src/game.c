@@ -235,9 +235,6 @@ static void game_loop(board* gameBoard)
 }
 
 
-/*TODO: jak sie wpisze więcej komend w jednej linijce (np. f s s) to wykonuje się i postawienie flagi w miejscu ASCI(?) (s, s)
- * oraz zapisanie gry do pliku o nazwie s - trzeba poprawić całą tą funkcję
-*/
 //zwraca 1 jeśli gra jest w toku
 //zwraca 0 jeśli mamy zwrócić wynik
 int game_iter(board* gameBoard)
@@ -279,60 +276,27 @@ int game_iter(board* gameBoard)
                 iter += 4; //przechodzimy 4 indexy w prawo żeby sscanf szukał tych zmiennych w dalszej czesci komendy
             }
             break;
-        default:
-            printf("Invalid command!\n");
 
+        case 's':
+            save_with_exit_confirmation(gameBoard);
+            break;
+
+        case 'h':
+            printf("Help:\n"
+            "\t• f [row1] [col1] [row2] [col2] ... [rown] [coln]- places a flag in all positions from [row1][col1] - [rown][coln]\n"
+            "\t• r [row1] [col1] [row2] [col2] ... [rown] [coln] - reveals all fields in positions [row1][col1] - [rown][coln]\n"
+            "\t• ? [row1] [col1] [row2] [col2] ... [rown] [coln] - marks the fields in positions [row1][col1] - [rown][coln] as \"?\"\n"
+            "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
+            break;
+
+        case 'd': //komenda do debugowania
+            while (sscanf(line + iter, "%zu %zu", &row, &col) == 2)
+            {
+                printf("Element at index (%zu, %zu) is %d, in user's board is %d\n", row, col, gameBoard->SOLVED[row][col], gameBoard->P[row][col]);
+                iter += 4; //przechodzimy 4 indexy w prawo żeby sscanf szukał tych zmiennych w dalszej czesci komendy
+            }
+            break;
     }
     printf("\n");
-
-
-
-    // fgetc(stdin); //usuwa znak nowej linii z poprzedniej komendy
-    // char command = fgetc(stdin);
-    // fgetc(stdin); //usuwa spacje pomiedzy komendą a danymi
-    //
-    // if (command == 'f') //stawiamy flage
-    // {
-    //     size_t row, col;
-    //     if (scanf("%zu %zu", &row, &col) != 2)
-    //     {
-    //         printf("Invalid values!\n");
-    //     } else //jeśli się powiodło
-    //     {
-    //         place_flag(row, col, gameBoard);
-    //     }
-    // }
-    // else if (command == 'r') //odsłaniamy pole
-    // {
-    //     size_t row, col;
-    //     if (scanf("%zu %zu", &row, &col) != 2)
-    //     {
-    //         printf("Invalid values!\n");
-    //     }
-    //
-    //     if (uncover_field(row, col, gameBoard) == 0)
-    //     {
-    //         printf("Przegrałeś :(\n");
-    //         exit(0);
-    //     }
-    // }
-    // else if (command == 's')
-    // {
-    //     save_with_exit_confirmation(gameBoard);
-    // }
-    // else if (command == 'd')
-    // {
-    //     size_t row, col;
-    //     assert(scanf("%zu %zu", &row, &col) == 2);
-    //     printf("Element at index (%zu, %zu) is %d, in user's board is %d\n", row, col, gameBoard->SOLVED[row][col], gameBoard->P[row][col]);
-    // }
-    // else if (command == 'h')
-    // {
-    //     printf("Help:\n"
-    //            "\t• f [row][column] - places a flag in position [row][column]\n"
-    //            "\t• r [row][column] - reveals a field in position [row][column]\n"
-    //            "\t• ? [row][column] - marks the field at [row][column] as \"?\"\n"
-    //            "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
-    // }
     return 1;
 }
