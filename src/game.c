@@ -36,7 +36,12 @@ void start_game_from_board(board* gameBoard) {
     free_board(gameBoard);
 }
 
-
+void start_game_from_saved_board(board* gameBoard)
+{
+    board_assert(gameBoard);
+    game_loop(gameBoard);
+    free_board(gameBoard);
+}
 
 void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
     //szukamy pól które musimy rekurencyjnie przeszukać
@@ -110,27 +115,15 @@ void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
     }
 }
 
-void save_with_exit_confirmation(board* gameBoard)
+void save_with_exit_confirmation(board* gameBoard, char* filename)
 {
-    //maksymalna długość pliku to 50
-    static int fileNameLengthMax = 50;
-    char filename[fileNameLengthMax];
-    char buf;
-    int i = 0;
-    while ((buf = fgetc(stdin)) != '\n' && i < fileNameLengthMax - 1)
-    {
-        filename[i] = buf;
-        i++;
-    }
-    filename[i] = '\0';
-    if (filename[0] == '\0')
+    if (filename == NULL || filename == "")
     {
         fprintf(stderr, "Invalid filename\n");
-        save_with_exit_confirmation(gameBoard);
+        return;
     }
     save_game(filename, gameBoard);
-
-
+    printf("Succesfully saved the game to file %s", filename);
     printf("Do you want to quit? (y/N)\n");
     char c = fgetc(stdin);
     if (c == 'y' || c == 'Y')
@@ -278,7 +271,7 @@ int game_iter(board* gameBoard)
             break;
 
         case 's':
-            save_with_exit_confirmation(gameBoard);
+            save_with_exit_confirmation(gameBoard, line + 2);
             break;
 
         case 'h':
