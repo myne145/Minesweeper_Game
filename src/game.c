@@ -252,14 +252,16 @@ int game_iter(board* gameBoard)
         printf("Invalid command!\n");
         return 1;
     }
+
+
     size_t row, col;
+    int iter = 1;
 
     //pierwszy symbol w linijce to komenda
     switch (*line)
     {
         case 'f':
             //jeśli chcemy postawić więcej niż 1 flagę na raz
-            int iter = 1;
             //szukamy w linijce dwóch size_t, każdy to rząd i kolumna
             while (sscanf(line + iter, "%zu %zu", &row, &col) == 2)
             {
@@ -267,8 +269,18 @@ int game_iter(board* gameBoard)
                 iter += 4; //przechodzimy 4 indexy w prawo żeby sscanf szukał tych zmiennych w dalszej czesci komendy
             }
             break;
-
-
+        case 'r':
+            while (sscanf(line + iter, "%zu %zu", &row, &col) == 2)
+            {
+                if (uncover_field(row, col, gameBoard) == 0)
+                {
+                    return 0; //chcemy zwrócić wynik jeśli odkryliśmy bombę
+                }
+                iter += 4; //przechodzimy 4 indexy w prawo żeby sscanf szukał tych zmiennych w dalszej czesci komendy
+            }
+            break;
+        default:
+            printf("Invalid command!\n");
 
     }
     printf("\n");
