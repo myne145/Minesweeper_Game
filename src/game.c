@@ -17,13 +17,6 @@ void start_game_from_board(board* gameBoard) {
     //plansza która ma już wszystkie pola odkryte
     board_assert(gameBoard);
 
-    //userBoard - plansza na której użytkownik gra, na bieżąco są odkrywane nowe pola i to ona jest drukowana
-    // board* userBoard = make_board(boardToStart->rows, boardToStart->cols, boardToStart->amountOfBombs);
-    // //dokładna kopia solvedBoard, tylko bez losowania
-    // board_assert(userBoard);
-    // print_board_game(userBoard);
-
-
     size_t row, col;
     printf("First move[row column]: ");
     assert(scanf("%zu %zu", &row, &col) == 2);
@@ -41,7 +34,6 @@ void start_game_from_board(board* gameBoard) {
     game_loop(gameBoard);
 
     free_board(gameBoard);
-    // free_board(userBoard);
 }
 
 
@@ -243,7 +235,6 @@ static void game_loop(board* gameBoard)
 }
 
 
-
 /*TODO: jak sie wpisze więcej komend w jednej linijce (np. f s s) to wykonuje się i postawienie flagi w miejscu ASCI(?) (s, s)
  * oraz zapisanie gry do pliku o nazwie s - trzeba poprawić całą tą funkcję
 */
@@ -267,13 +258,20 @@ int game_iter(board* gameBoard)
     switch (*line)
     {
         case 'f':
-            sscanf(line+1, "%zu %zu", &row, &col);
-            place_flag(row, col, gameBoard);
+            //jeśli chcemy postawić więcej niż 1 flagę na raz
+            int iter = 1;
+            //szukamy w linijce dwóch size_t, każdy to rząd i kolumna
+            while (sscanf(line + iter, "%zu %zu", &row, &col) == 2)
+            {
+                place_flag(row, col, gameBoard); //stawiamy flage w tych miejscach
+                iter += 4; //przechodzimy 4 indexy w prawo żeby sscanf szukał tych zmiennych w dalszej czesci komendy
+            }
             break;
 
 
-    }
 
+    }
+    printf("\n");
 
 
 
