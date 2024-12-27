@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "board.h"
 #include "save.h"
@@ -206,7 +207,6 @@ static int is_game_won(board* gameBoard)
     return 1;
 }
 
-
 static void game_loop(board* gameBoard)
 {
     int gameStatus = 1;
@@ -227,7 +227,6 @@ static void game_loop(board* gameBoard)
     exit(0);
 }
 
-
 //zwraca 1 jeśli gra jest w toku
 //zwraca 0 jeśli mamy zwrócić wynik
 int game_iter(board* gameBoard)
@@ -243,30 +242,72 @@ int game_iter(board* gameBoard)
         return 1;
     }
 
+    //dzielimy komendę po spacjach na tablice stringów
+    char** command = malloc(strlen(line) * sizeof(char*));
+    command[0] = malloc(20 * sizeof(char)); //wyciągnięta 1 iteracja po za pętlę
 
-    size_t row, col;
-    int iter = 1;
+    int commandLength = 0;
+    int tempElementIndex = 0;
+    for (int i = 0; i < strlen(line); i++)
+    {
+        if (line[i] == ' ')
+        {
+            tempElementIndex = 0;
+            commandLength++;
+            command[commandLength] = malloc(20 * sizeof(char)); //maksymalnie 20 znaków w jednej części komendy
+            continue;
+        }
+        command[commandLength][tempElementIndex] = line[i];
+        tempElementIndex++;
+    }
+    free(line);
+
+    //jeśli pierwsza czesc komendy ma wiecej niz 1 znak to jest zła
+    //nie ma komend co mają więcej niz 1 znak na startcie, a dzięki temu ifowi switcha można użyć
+    if (strlen(*command) > 1)
+    {
+        printf("Invalid command!\n");
+        return 1;
+    }
 
     //pierwszy symbol w linijce to komenda
-    switch (*line)
+    switch (**command)
     {
-        case 'f':
-            //jeśli chcemy postawić więcej niż 1 flagę na raz
-            //szukamy w linijce dwóch size_t, każdy to rząd i kolumna
-            while (sscanf(line + iter, "%zu %zu", &row, &col) == 2)
+        case 'f': //stawiamy flagę
+            size_t row, col;
+            //ten piękny kod naprzemiennie ustawia wartości row i col
+            //i jak obie są już ustawione to wykonuje dla nich podaną funkcję
+            for (int i = 1; i <= commandLength; i++)
             {
-                place_flag(row, col, gameBoard); //stawiamy flage w tych miejscach
-                iter += 4; //przechodzimy 4 indexy w prawo żeby sscanf szukał tych zmiennych w dalszej czesci komendy
+                if (i % 2 == 0)
+                {
+                    sscanf(command[i], "%zu", &col);
+                } else
+                {
+                    sscanf(command[i], "%zu", &row);
+                    continue;
+                }
+
+                place_flag(row, col, gameBoard);
             }
             break;
-        case 'r':
-            while (sscanf(line + iter, "%zu %zu", &row, &col) == 2)
+        case 'r': //odkrywamy pole
+            //ten piękny kod naprzemiennie ustawia wartości row i col
+            //i jak obie są już ustawione to wykonuje dla nich podaną funkcję
+            for (int i = 1; i <= commandLength; i++)
             {
-                if (uncover_field(row, col, gameBoard) == 0)
+                if (i % 2 == 0)
                 {
-                    return 0; //chcemy zwrócić wynik jeśli odkryliśmy bombę
+                    sscanf(command[i], "%zu", &col);
+                } else
+                {
+                    sscanf(command[i], "%zu", &row);
+                    continue;
                 }
-                iter += 4; //przechodzimy 4 indexy w prawo żeby sscanf szukał tych zmiennych w dalszej czesci komendy
+
+                //jeśli klikneliśmy w bombę to kończymy grę
+                if (uncover_field(row, col, gameBoard) == 0)
+                    return 0;
             }
             break;
 
@@ -280,14 +321,6 @@ int game_iter(board* gameBoard)
             "\t• r [row1] [col1] [row2] [col2] ... [rown] [coln] - reveals all fields in positions [row1][col1] - [rown][coln]\n"
             "\t• ? [row1] [col1] [row2] [col2] ... [rown] [coln] - marks the fields in positions [row1][col1] - [rown][coln] as \"?\"\n"
             "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
-            break;
-
-        case 'd': //komenda do debugowania
-            while (sscanf(line + iter, "%zu %zu", &row, &col) == 2)
-            {
-                printf("Element at index (%zu, %zu) is %d, in user's board is %d\n", row, col, gameBoard->SOLVED[row][col], gameBoard->P[row][col]);
-                iter += 4; //przechodzimy 4 indexy w prawo żeby sscanf szukał tych zmiennych w dalszej czesci komendy
-            }
             break;
     }
     printf("\n");
