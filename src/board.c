@@ -3,11 +3,12 @@
 #include <assert.h> // Dla assert
 #include <stdio.h> // Dla printf
 
-void board_content_assert(int** arrayToCheck, size_t rows, size_t cols)
+//akceptujemy pola: -4 (?), -3 (F), -2 (*), -1 (-), 0-8 (numerki)
+void board_content_assert(int** arrayToCheck, const size_t rows, const size_t cols)
 {
-    for(size_t j = 0; j < rows; j++){
-        for(size_t i = 0; i < cols; i++){
-            assert((arrayToCheck[j][i] >= 1 && arrayToCheck[j][i] <= 8)||(arrayToCheck[j][i] == 0 || arrayToCheck[j][i] <= -1 || arrayToCheck[j][i] >= -3 )); // Sprawdzamy czy wartość pola jest poprawna
+    for(size_t i = 0; i < rows; i++){
+        for(size_t j = 0; j < cols; j++){
+            assert(arrayToCheck[i][j] >= -4 && arrayToCheck[i][j] <= 8);
         }
     }
 }
