@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "board.h"
 #include "src/SaveAndLoadGame/save_load.h"
 #include "game_command.h"
 
