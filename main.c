@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #include "src/board.h"
-#include "src/save.h"
+#include "src/SaveAndLoadGame/save_load.h"
 #include "src/game.h"
 
 void set_values_from_preset(char* preset, size_t* rows, size_t* cols, size_t* bombs)

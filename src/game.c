@@ -9,12 +9,11 @@
 #include <string.h>
 
 #include "board.h"
-#include "save.h"
+#include "src/SaveAndLoadGame/save_load.h"
 #include "game_command.h"
 
 static int game_iter(board* gameBoard);
 static void game_loop(board* gameBoard);
-void free_command(char** command, int commandLength);
 
 void start_game_from_board(board* gameBoard) {
     //plansza która ma już wszystkie pola odkryte
@@ -28,7 +27,7 @@ void start_game_from_board(board* gameBoard) {
     randomize_solution_to_board(gameBoard, row, col);
     gameBoard->P[row][col] = gameBoard->SOLVED[row][col];
 
-    //(tymczasowo?) wyciągamy 1 iterację po za pętlę
+    //wyciągamy 1 iterację po za pętlę
     show_surrounding_empty_fields(row, col, gameBoard);
     print_board_game(gameBoard);
 
@@ -111,23 +110,6 @@ void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
             //rekurencja
             show_surrounding_empty_fields(a, b, gameBoard);
         }
-    }
-}
-
-void save_with_exit_confirmation(board* gameBoard, char* filename)
-{
-    if (filename == NULL || filename == "")
-    {
-        fprintf(stderr, "Invalid filename\n");
-        return;
-    }
-    save_game(filename, gameBoard);
-    printf("Succesfully saved the game to file %s", filename);
-    printf("Do you want to quit? (y/N)\n");
-    char c = fgetc(stdin);
-    if (c == 'y' || c == 'Y')
-    {
-        exit(0);
     }
 }
 
