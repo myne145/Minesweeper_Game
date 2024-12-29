@@ -43,9 +43,10 @@ void start_game_from_saved_board(board* gameBoard)
     free_board(gameBoard);
 }
 
-void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
+static void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
     //szukamy pól które musimy rekurencyjnie przeszukać
     //wybieramy obszar 3x3 chyba że jesteśmy na granicy tablicy wtedy zmneijszamy granice aby uniknac segfaulta
+    //można tu było użyć funkcji get_valid_bounds z board.h, ale bez tego czytelniej jest
     size_t startRow = row - 1;
     size_t startCol = col - 1;
     //ograniczenie granic jeśli wychodzimy po za tablice

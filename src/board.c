@@ -3,6 +3,8 @@
 #include <assert.h> // Dla assert
 #include <stdio.h> // Dla printf
 
+#define DEBUG 0
+
 //akceptujemy pola: -4 (?), -3 (F), -2 (*), -1 (-), 0-8 (numerki)
 void board_content_assert(int** arrayToCheck, const size_t rows, const size_t cols)
 {
@@ -80,54 +82,6 @@ void free_board(board* Board){
 }
 
 //Funkcja pokazująca board
-void print_board(board* Board){
-    board_assert(Board);
-    for(size_t i = 0; i < Board->rows; i++){
-        if( i <= 9){ // jeśli i jest jednocyfrowe to dodajemy spacje
-            printf(" ");
-        }
-        printf("%zu. |",i);       // numer wiersza
-        for(size_t j = 0; j < Board->cols; j++){
-            int val = Board->P[i][j]; // wartość pola
-            switch(val){
-                case -1:
-                    printf(" -1 |");  // -1 to znacznik nieznanego pola
-                    break;
-                case 0:
-                    printf(" 0 |");  // 0 to znane puste pole
-                    break;
-                case -2:
-                    printf(" -2 |"); // -2 to znacznik miny
-                    break;
-                default:
-                    if(val >= 1 && val <= 8){
-                        printf(" %d |",val); // liczby od 1 do 8 to znaczniki ilości min w sąsiedztwie
-                    }else{
-                        printf(" ? "); // inna wartość to znacznik błędu
-                    }
-                    break;
-            }
-        }
-        printf("\n"); // nowa linia (nastepny wiersz)
-    }
-    printf("     "); // spacje na początku (zeby wyrownac od krawedzi)
-    for(size_t j = 0; j < Board->cols; j++){
-        printf("----"); // linia oddzielająca pola od numeracji na dole
-    }
-    printf("\n"); // nowa linia (po linii oddzielającej)
-    printf("    ");// spacje na początku (zeby wyrownac od krawedzi)
-    for(size_t j = 0; j < Board->cols; j++){
-        if( j <= 9){ // jeśli j jest jednocyfrowe to dodajemy spacje
-            printf(" %zu. ",j); //numer kolumny jesli jest jednocyfrowa dajemy spacje
-        }else{
-            printf("%zu. ",j); //jesli dwucyfrowa to nie dajemy spacji (zeby bylo rowno)(wiekszych nie zakladamy)
-        }
-    }
-    printf("\n");
-    printf("Number of bombs: %zu\n", Board->amountOfBombs); // ilość bomb
-}
-
-//Funkcja pokazująca board
 void print_board_game(board* Board){
     board_assert(Board);
     for(size_t i = 0; i < Board->rows; i++){
@@ -139,16 +93,16 @@ void print_board_game(board* Board){
             int val = Board->P[i][j]; // wartość pola
             switch(val){
                 case -1:
-                    printf(" - |");  // -1 to znacznik nieznanego pola
+                    printf(DEBUG == 0 ? " - |" : "-1 |");  // -1 to znacznik nieznanego pola
                     break;
                 case 0:
-                    printf("   |");  // 0 to znane puste pole
+                    printf(DEBUG == 0 ? "   |" : " 0 |");  // 0 to znane puste pole
                     break;
                 case -2:
-                    printf(" * |"); // -2 to znacznik miny
+                    printf(DEBUG == 0 ? " * |" : "-2 |"); // -2 to znacznik miny
                     break;
                 case -3:
-                    printf(" F |"); // -3 to znacznik flagi
+                    printf(DEBUG == 0 ? " F |" : "-3 |"); // -3 to znacznik flagi
                     break;
                 default:
                     if(val >= 1 && val <= 8){
@@ -268,7 +222,7 @@ void randomize_solution_to_board(board* board, size_t firstRow, size_t firstCol)
             // }
 
             //czy jak sprawdzamy ilość bomb w promieniu 1 to czy nie wyjdziemy po za granice tablicy
-            size_t startRow = get_valid_bounds(i - 1, board); //TODO refactor (game.c)
+            size_t startRow = get_valid_bounds(i - 1, board);
             size_t startCol = get_valid_bounds(j - 1, board);
             size_t endRow = get_valid_bounds(i + 1, board);
             size_t endCol = get_valid_bounds(j + 1, board);
