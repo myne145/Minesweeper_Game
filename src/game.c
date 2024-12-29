@@ -13,6 +13,7 @@
 
 static int game_iter(board* gameBoard);
 static void game_loop(board* gameBoard);
+void free_command(char** command, int commandLength);
 
 void start_game_from_board(board* gameBoard) {
     //plansza która ma już wszystkie pola odkryte
@@ -30,8 +31,6 @@ void start_game_from_board(board* gameBoard) {
     show_surrounding_empty_fields(row, col, gameBoard);
     print_board_game(gameBoard);
 
-    //1 - gra w toku
-    // 0 - zwróc wynik
     game_loop(gameBoard);
 
     free_board(gameBoard);
@@ -261,6 +260,7 @@ int game_iter(board* gameBoard)
         command[commandLength][tempElementIndex] = line[i];
         tempElementIndex++;
     }
+    commandLength++;
     free(line);
 
     //jeśli pierwsza czesc komendy ma wiecej niz 1 znak to jest zła
@@ -278,7 +278,7 @@ int game_iter(board* gameBoard)
             size_t row, col;
             //ten piękny kod naprzemiennie ustawia wartości row i col
             //i jak obie są już ustawione to wykonuje dla nich podaną funkcję
-            for (int i = 1; i <= commandLength; i++)
+            for (int i = 1; i < commandLength; i++)
             {
                 if (i % 2 == 0)
                 {
@@ -295,7 +295,7 @@ int game_iter(board* gameBoard)
         case 'r': //odkrywamy pole
             //ten piękny kod naprzemiennie ustawia wartości row i col
             //i jak obie są już ustawione to wykonuje dla nich podaną funkcję
-            for (int i = 1; i <= commandLength; i++)
+            for (int i = 1; i < commandLength; i++)
             {
                 if (i % 2 == 0)
                 {
@@ -307,8 +307,10 @@ int game_iter(board* gameBoard)
                 }
 
                 //jeśli klikneliśmy w bombę to kończymy grę
-                if (uncover_field(row, col, gameBoard) == 0)
+                if (uncover_field(row, col, gameBoard) == 0) {
+                    free_command(command, commandLength);
                     return 0;
+                }
             }
             break;
 
@@ -325,7 +327,14 @@ int game_iter(board* gameBoard)
             break;
     }
     printf("\n");
-    free(command);
+    free_command(command, commandLength);
 
     return 1;
+}
+
+void free_command(char** command, int commandLength) {
+    for(int i = 0; i < commandLength; i++) {
+        free(command[i]);
+    }
+    free(command);
 }
