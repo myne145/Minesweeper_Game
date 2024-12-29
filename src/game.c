@@ -140,7 +140,7 @@ void place_flag(size_t row, size_t col, board* gameBoard)
     //tutaj sprawdzamy czy index nie wychodzi po za granice tablicy i czy pole jest nieznane (-1) albo czy jest flagą
     if (row >= gameBoard->rows || col >= gameBoard->cols || (gameBoard->P[row][col] != -1 && gameBoard->P[row][col] != -3))
     {
-        printf("Invalid position!\n"); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
+        printf("Position (%zu, %zu) is invalid\n", row, col); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
         return;
     }
 
@@ -157,7 +157,7 @@ int uncover_field(size_t row, size_t col, board* gameBoard)
     //możemy odsłonić tylko: nieznane pola (-1), bomby (-2), flagi (-3) i znaki zapytania (-4)
     if (row >= gameBoard->rows || col >= gameBoard->cols || (gameBoard->P[row][col] < 1 && gameBoard->P[row][col] > 8))
     {
-        printf("Invalid position!\n"); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
+        printf("Position (%zu, %zu) is invalid\n", row, col); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
         return 1;
     }
     gameBoard->P[row][col] = gameBoard->SOLVED[row][col]; //odsłonięcie pola - przypisanie wartości z planszy rozwiązania do planszy usera
@@ -252,6 +252,7 @@ int game_iter(board* gameBoard)
     {
         if (line[i] == ' ')
         {
+            command[commandLength][tempElementIndex] = '\0';
             tempElementIndex = 0;
             commandLength++;
             command[commandLength] = malloc(20 * sizeof(char)); //maksymalnie 20 znaków w jednej części komendy
@@ -324,5 +325,7 @@ int game_iter(board* gameBoard)
             break;
     }
     printf("\n");
+    free(command);
+
     return 1;
 }
