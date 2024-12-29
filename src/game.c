@@ -243,7 +243,10 @@ int game_iter(board* gameBoard)
 
     //dzielimy komendę po spacjach na tablice stringów
     char** command = malloc(strlen(line) * sizeof(char*));
+    assert(command != NULL && "Failed to allocate memory for the command string");
+
     command[0] = malloc(20 * sizeof(char)); //wyciągnięta 1 iteracja po za pętlę
+    assert(command[0] != NULL && "Failed to allocate memory for the 0th command element");
 
     int commandLength = 0;
     int tempElementIndex = 0;
@@ -254,7 +257,9 @@ int game_iter(board* gameBoard)
             command[commandLength][tempElementIndex] = '\0';
             tempElementIndex = 0;
             commandLength++;
+
             command[commandLength] = malloc(20 * sizeof(char)); //maksymalnie 20 znaków w jednej części komendy
+            assert(command[commandLength] != NULL && "Failed to allocate memory for the >0th command element");
             continue;
         }
         command[commandLength][tempElementIndex] = line[i];
@@ -271,11 +276,11 @@ int game_iter(board* gameBoard)
         return 1;
     }
 
+    size_t row, col;
     //pierwszy symbol w linijce to komenda
     switch (**command)
     {
         case 'f': //stawiamy flagę
-            size_t row, col;
             //ten piękny kod naprzemiennie ustawia wartości row i col
             //i jak obie są już ustawione to wykonuje dla nich podaną funkcję
             for (int i = 1; i < commandLength; i++)
