@@ -10,6 +10,7 @@
 
 #include "board.h"
 #include "save.h"
+#include "game_command.h"
 
 static int game_iter(board* gameBoard);
 static void game_loop(board* gameBoard);
@@ -69,13 +70,11 @@ void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
     {
         endCol = gameBoard->cols - 1;
     }
-    // printf("(%d, %d) - startRow: %d, startCol: %d, endRow: %d, endCol: %d\n", row, col, startRow, startCol, endRow, endCol);
     //iterowanie sie po indexach i sprawdzanie czy sa one pustymi polami jesli tak to rekurencja dalej jak nie to continue i idziemy do nastepnego
     for (size_t a = startRow; a <= endRow; a++)
     {
         for (size_t b = startCol; b <= endCol; b++)
         {
-            // printf(" - Checking field (%d, %d)\n", a, b);
             //jeśli pole nie jest pustym polem to pomijamy i idziemy dalej
             //dodatkowo pole nie jest bombą - nie chcemy odkrywać bomb żeby użytkownik je widział (następny if do tego)
             if (gameBoard->SOLVED[a][b] != 0 && gameBoard->SOLVED[a][b] != -2)
@@ -241,31 +240,8 @@ int game_iter(board* gameBoard)
         return 1;
     }
 
-    //dzielimy komendę po spacjach na tablice stringów
-    char** command = malloc(strlen(line) * sizeof(char*));
-    assert(command != NULL && "Failed to allocate memory for the command string");
-
-    command[0] = malloc(20 * sizeof(char)); //wyciągnięta 1 iteracja po za pętlę
-    assert(command[0] != NULL && "Failed to allocate memory for the 0th command element");
-
     int commandLength = 0;
-    int tempElementIndex = 0;
-    for (int i = 0; i < strlen(line); i++)
-    {
-        if (line[i] == ' ')
-        {
-            command[commandLength][tempElementIndex] = '\0';
-            tempElementIndex = 0;
-            commandLength++;
-
-            command[commandLength] = malloc(20 * sizeof(char)); //maksymalnie 20 znaków w jednej części komendy
-            assert(command[commandLength] != NULL && "Failed to allocate memory for the >0th command element");
-            continue;
-        }
-        command[commandLength][tempElementIndex] = line[i];
-        tempElementIndex++;
-    }
-    commandLength++;
+    char** command = split_command_by_spaces(line, &commandLength);
     free(line);
 
     //jeśli pierwsza czesc komendy ma wiecej niz 1 znak to jest zła
@@ -335,11 +311,4 @@ int game_iter(board* gameBoard)
     free_command(command, commandLength);
 
     return 1;
-}
-
-void free_command(char** command, int commandLength) {
-    for(int i = 0; i < commandLength; i++) {
-        free(command[i]);
-    }
-    free(command);
 }
