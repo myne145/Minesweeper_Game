@@ -3,7 +3,7 @@
 //
 #ifndef GAME_H
 #define GAME_H
-#include "board.h"
+#include "src/Board/board.h"
 
 /**
  * Zaczyna grę z podanej planszy
@@ -24,6 +24,6 @@ void start_game_from_saved_board(board* gameBoard);
  * @param row rząd
  * @param col kolumna
  */
-void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard);
+static void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard);
 
 #endif //GAME_H

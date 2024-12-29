@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "board.h"
-#include "save.h"
+#include "src/SaveAndLoadGame/save_load.h"
+#include "game_command.h"
 
 static int game_iter(board* gameBoard);
 static void game_loop(board* gameBoard);
@@ -26,12 +26,10 @@ void start_game_from_board(board* gameBoard) {
     randomize_solution_to_board(gameBoard, row, col);
     gameBoard->P[row][col] = gameBoard->SOLVED[row][col];
 
-    //(tymczasowo?) wyciągamy 1 iterację po za pętlę
+    //wyciągamy 1 iterację po za pętlę
     show_surrounding_empty_fields(row, col, gameBoard);
     print_board_game(gameBoard);
 
-    //1 - gra w toku
-    // 0 - zwróc wynik
     game_loop(gameBoard);
 
     free_board(gameBoard);
@@ -44,9 +42,10 @@ void start_game_from_saved_board(board* gameBoard)
     free_board(gameBoard);
 }
 
-void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
+static void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
     //szukamy pól które musimy rekurencyjnie przeszukać
     //wybieramy obszar 3x3 chyba że jesteśmy na granicy tablicy wtedy zmneijszamy granice aby uniknac segfaulta
+    //można tu było użyć funkcji get_valid_bounds z board.h, ale bez tego czytelniej jest
     size_t startRow = row - 1;
     size_t startCol = col - 1;
     //ograniczenie granic jeśli wychodzimy po za tablice
@@ -70,13 +69,11 @@ void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
     {
         endCol = gameBoard->cols - 1;
     }
-    // printf("(%d, %d) - startRow: %d, startCol: %d, endRow: %d, endCol: %d\n", row, col, startRow, startCol, endRow, endCol);
     //iterowanie sie po indexach i sprawdzanie czy sa one pustymi polami jesli tak to rekurencja dalej jak nie to continue i idziemy do nastepnego
     for (size_t a = startRow; a <= endRow; a++)
     {
         for (size_t b = startCol; b <= endCol; b++)
         {
-            // printf(" - Checking field (%d, %d)\n", a, b);
             //jeśli pole nie jest pustym polem to pomijamy i idziemy dalej
             //dodatkowo pole nie jest bombą - nie chcemy odkrywać bomb żeby użytkownik je widział (następny if do tego)
             if (gameBoard->SOLVED[a][b] != 0 && gameBoard->SOLVED[a][b] != -2)
@@ -116,23 +113,6 @@ void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
     }
 }
 
-void save_with_exit_confirmation(board* gameBoard, char* filename)
-{
-    if (filename == NULL || filename == "")
-    {
-        fprintf(stderr, "Invalid filename\n");
-        return;
-    }
-    save_game(filename, gameBoard);
-    printf("Succesfully saved the game to file %s", filename);
-    printf("Do you want to quit? (y/N)\n");
-    char c = fgetc(stdin);
-    if (c == 'y' || c == 'Y')
-    {
-        exit(0);
-    }
-}
-
 void place_flag(size_t row, size_t col, board* gameBoard)
 {
     //gdy stawiamy flagę nigdy nie odkrywamy więcej pól
@@ -140,7 +120,7 @@ void place_flag(size_t row, size_t col, board* gameBoard)
     //tutaj sprawdzamy czy index nie wychodzi po za granice tablicy i czy pole jest nieznane (-1) albo czy jest flagą
     if (row >= gameBoard->rows || col >= gameBoard->cols || (gameBoard->P[row][col] != -1 && gameBoard->P[row][col] != -3))
     {
-        printf("Invalid position!\n"); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
+        printf("Position (%zu, %zu) is invalid\n", row, col); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
         return;
     }
 
@@ -157,7 +137,7 @@ int uncover_field(size_t row, size_t col, board* gameBoard)
     //możemy odsłonić tylko: nieznane pola (-1), bomby (-2), flagi (-3) i znaki zapytania (-4)
     if (row >= gameBoard->rows || col >= gameBoard->cols || (gameBoard->P[row][col] < 1 && gameBoard->P[row][col] > 8))
     {
-        printf("Invalid position!\n"); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
+        printf("Position (%zu, %zu) is invalid\n", row, col); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
         return 1;
     }
     gameBoard->P[row][col] = gameBoard->SOLVED[row][col]; //odsłonięcie pola - przypisanie wartości z planszy rozwiązania do planszy usera
@@ -242,24 +222,8 @@ int game_iter(board* gameBoard)
         return 1;
     }
 
-    //dzielimy komendę po spacjach na tablice stringów
-    char** command = malloc(strlen(line) * sizeof(char*));
-    command[0] = malloc(20 * sizeof(char)); //wyciągnięta 1 iteracja po za pętlę
-
     int commandLength = 0;
-    int tempElementIndex = 0;
-    for (int i = 0; i < strlen(line); i++)
-    {
-        if (line[i] == ' ')
-        {
-            tempElementIndex = 0;
-            commandLength++;
-            command[commandLength] = malloc(20 * sizeof(char)); //maksymalnie 20 znaków w jednej części komendy
-            continue;
-        }
-        command[commandLength][tempElementIndex] = line[i];
-        tempElementIndex++;
-    }
+    char** command = split_command_by_spaces(line, &commandLength);
     free(line);
 
     //jeśli pierwsza czesc komendy ma wiecej niz 1 znak to jest zła
@@ -270,14 +234,14 @@ int game_iter(board* gameBoard)
         return 1;
     }
 
+    size_t row, col;
     //pierwszy symbol w linijce to komenda
     switch (**command)
     {
         case 'f': //stawiamy flagę
-            size_t row, col;
             //ten piękny kod naprzemiennie ustawia wartości row i col
             //i jak obie są już ustawione to wykonuje dla nich podaną funkcję
-            for (int i = 1; i <= commandLength; i++)
+            for (int i = 1; i < commandLength; i++)
             {
                 if (i % 2 == 0)
                 {
@@ -294,7 +258,7 @@ int game_iter(board* gameBoard)
         case 'r': //odkrywamy pole
             //ten piękny kod naprzemiennie ustawia wartości row i col
             //i jak obie są już ustawione to wykonuje dla nich podaną funkcję
-            for (int i = 1; i <= commandLength; i++)
+            for (int i = 1; i < commandLength; i++)
             {
                 if (i % 2 == 0)
                 {
@@ -306,8 +270,10 @@ int game_iter(board* gameBoard)
                 }
 
                 //jeśli klikneliśmy w bombę to kończymy grę
-                if (uncover_field(row, col, gameBoard) == 0)
+                if (uncover_field(row, col, gameBoard) == 0) {
+                    free_command(command, commandLength);
                     return 0;
+                }
             }
             break;
 
@@ -324,5 +290,7 @@ int game_iter(board* gameBoard)
             break;
     }
     printf("\n");
+    free_command(command, commandLength);
+
     return 1;
 }

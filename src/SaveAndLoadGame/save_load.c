@@ -1,10 +1,11 @@
-#include "board.h"
-#include "save.h"
+#include "src/Board/board.h"
+#include "save_load.h"
 #include <assert.h>
 #include <stdio.h> // Dla fread, fwrite
+#include <stdlib.h>
 
 //Funckja zapisująca grę do bliku binarnego wybranego przez gracza
-void save_game(char* save_name,board* Board){
+static void save_game(char* save_name,board* Board){
     assert(save_name != NULL); // Sprawdzamy czy nazwa nie jest pusta
     board_assert(Board);        // Sprawdzamy poprawność planszy
     FILE *file = fopen(save_name, "wb"); // Otwieramy plik do zapisu binarnego
@@ -74,4 +75,21 @@ board* load_game(char* save_name){
     board_assert(Board); // Sprawdzamy poprawność planszy po wczytaniu wartosci pól
     fclose(file); //zamykamy plik
     return Board; // zwracamy wczytaną planszę
+}
+
+void save_with_exit_confirmation(board* gameBoard, char* filename)
+{
+    if (filename == NULL || filename == "")
+    {
+        fprintf(stderr, "Invalid filename\n");
+        return;
+    }
+    save_game(filename, gameBoard);
+    printf("Succesfully saved the game to file %s", filename);
+    printf("Do you want to quit? (y/N)\n");
+    char c = fgetc(stdin);
+    if (c == 'y' || c == 'Y')
+    {
+        exit(0);
+    }
 }
