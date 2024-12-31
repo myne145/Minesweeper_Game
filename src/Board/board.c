@@ -83,6 +83,7 @@ void free_board(board* Board){
 
 //Funkcja pokazująca board
 void print_board_game(board* Board){
+    //system("clear");
     board_assert(Board);
     for(size_t i = 0; i < Board->rows; i++){
         if( i <= 9){ // jeśli i jest jednocyfrowe to dodajemy spacje

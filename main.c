@@ -39,7 +39,7 @@ void set_values_from_preset(char* preset, size_t* rows, size_t* cols, size_t* bo
 
 int main(int argc, char** argv) {
     int option;
-    while((option = getopt(argc, argv, "l:m:h:p:")) != -1) {
+    while((option = getopt(argc, argv, "l:m:hp:")) != -1) {
         size_t rows = 0;
         size_t cols = 0;
         size_t bombs = 0;
@@ -63,6 +63,7 @@ int main(int argc, char** argv) {
                 break;
 
             case 'p':
+                printf("");
                 //easy
                 //medium
                 //hard

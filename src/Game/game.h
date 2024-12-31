@@ -3,7 +3,7 @@
 //
 #ifndef GAME_H
 #define GAME_H
-#include "src/Board/board.h"
+#include "../Board/board.h"
 
 /**
  * Zaczyna grę z podanej planszy

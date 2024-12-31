@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "src/SaveAndLoadGame/save_load.h"
+#include "../SaveAndLoadGame/save_load.h"
 #include "game_command.h"
 
 static int game_iter(board* gameBoard);
@@ -28,7 +28,7 @@ void start_game_from_board(board* gameBoard) {
 
     //wyciągamy 1 iterację po za pętlę
     show_surrounding_empty_fields(row, col, gameBoard);
-    print_board_game(gameBoard);
+    //gra sie printowala dwa razy na starcie ;>
 
     game_loop(gameBoard);
 
@@ -213,7 +213,7 @@ int game_iter(board* gameBoard)
 {
     printf("Command (h for help):\t");
     char* line = NULL;
-    size_t size;
+    size_t size = 0;
 
     //sprawdzamy czy udało się wczytać linie
     if (getline(&line, &size, stdin) == -1)
@@ -226,9 +226,9 @@ int game_iter(board* gameBoard)
     char** command = split_command_by_spaces(line, &commandLength);
     free(line);
 
-    //jeśli pierwsza czesc komendy ma wiecej niz 1 znak to jest zła
-    //nie ma komend co mają więcej niz 1 znak na startcie, a dzięki temu ifowi switcha można użyć
-    if (strlen(*command) > 1)
+    //jćeśli pierwsza czesc komendy ma wiecej niz 1 znak to jest zła
+    //nie ma komend co mają więcej niz 1 znak na startcie, a dzięki temu ifowi switcha można uży
+    if (strlen(*command) > 2) // musi byc 2 tutaj bo inaczej opcje h i q musialyby posiadac argumenty zeby dzialac 
     {
         printf("Invalid command!\n");
         return 1;
@@ -278,7 +278,8 @@ int game_iter(board* gameBoard)
             break;
 
         case 's':
-            save_with_exit_confirmation(gameBoard, line + 2);
+            //save_with_exit_confirmation(gameBoard, line + 2); // line jest zwolniony z pamieci
+            save_with_exit_confirmation(gameBoard, *(command+1)); // teraz bedzie dzialac
             break;
 
         case 'h':
@@ -286,8 +287,11 @@ int game_iter(board* gameBoard)
             "\t• f [row1] [col1] [row2] [col2] ... [rown] [coln]- places a flag in all positions from [row1][col1] - [rown][coln]\n"
             "\t• r [row1] [col1] [row2] [col2] ... [rown] [coln] - reveals all fields in positions [row1][col1] - [rown][coln]\n"
             "\t• ? [row1] [col1] [row2] [col2] ... [rown] [coln] - marks the fields in positions [row1][col1] - [rown][coln] as \"?\"\n"
-            "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
+            "\t• s [filename < 50 chars] - saves the current game state to specified file\n"
+            "\t• q  - quit game without saving\n");
             break;
+        case 'q':
+            exit(EXIT_SUCCESS);
     }
     printf("\n");
     free_command(command, commandLength);
