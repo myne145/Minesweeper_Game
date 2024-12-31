@@ -195,18 +195,27 @@ int is_index_next_to_field(size_t a, size_t b, size_t row, size_t col, board* ga
 void randomize_solution_to_board(board* board, size_t firstRow, size_t firstCol) {
     board_assert(board);
 
-    //pole od którego zaczynamy zawsze jest puste
-    // board->SOLVED[firstRow][firstCol] = 0;
-
-    //TODO dodać jakieś warunki żeby bomb nie było za mało i gra nie była za łatwa po za tymi koniecznymi
     if(board->amountOfBombs >= board->rows * board->cols || board->amountOfBombs < 0) {
         fprintf(stderr, "Invalid amount of bombs\n");
         exit(-1);
     }
 
+    //licznik iteracji do tworzenia bomb
+    size_t iterCounter = 0;
+
     //dodawanie bomb
     int bombIter = 0;
     while(bombIter < board->amountOfBombs) {
+        iterCounter++;
+
+        //warunek jeśli plansza jest nieprawidłowa - jeśli ilosc iteracji > (ilośc pól na planszy)^2 to plansza jest zła
+        //wtedy to oznacza ze nie możemy znaleźć odpowiedniego miejsca na postawienia bomby na planszy
+        //troszke arbitralnie postawiona granica, ale nie widze lepszej opcji
+        if(iterCounter > (board->rows * board->cols) * (board->rows * board->cols)) {
+            printf("Invalid board!\n");
+            exit(-1);
+        }
+
         size_t row = rand() % board->rows;
         size_t col = rand() % board->cols;
 
