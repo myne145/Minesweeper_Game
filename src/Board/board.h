@@ -9,7 +9,9 @@ typedef struct Board {
 
     size_t rows;      // Liczba wierszy
     size_t cols;      // Liczba kolumn
-    size_t amountOfBombs; //to pole będzie jeszcze potrzebne, ilość bomb może być niestandardowa
+    size_t amountOfBombs; //ilość bomb
+    float score; //wynik użytkownika na planszy
+    float multiplier; //mnożnik do wyniku dla planszy - łatwy = 1, średni = 2, trudny = 3, dla customowych liczony "manualnie"
 } board;
 
 //Funkcja alokująca pamiec dla planszy
