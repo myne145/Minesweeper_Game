@@ -42,6 +42,8 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
     newBoard->rows = rows;
     newBoard->cols = cols;
     newBoard->amountOfBombs = amountOfBombs;
+    newBoard->score = 0;
+    newBoard->multiplier = 1; //TODO: poprawne wyliczenie multipliera
 
     //alokacja wierszy dla obu tablic
     newBoard->P = (int**)malloc(rows * sizeof(int*));
@@ -129,6 +131,7 @@ void print_board_game(board* Board){
         }
     }
     printf("\n");
+    printf("Current score: %f\n", Board->score);
 }
 
 //helper do poprawienia indexu tablicy jeśli wychodzi po za granice
@@ -161,6 +164,27 @@ int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size
     return bombCtr;
 }
 
+//a,b - TESTOWANY rząd i kolumna którą sprawdzamy czy jest index w okolicy
+//row, col - rząd i kolumna który sprawdzamy czy jest w okolicy a, b
+int is_index_next_to_field(size_t a, size_t b, size_t row, size_t col, board* gameBoard) {
+    //granice w których szukamy pola
+    size_t startRow = get_valid_bounds(a - 1, gameBoard);
+    size_t startCol = get_valid_bounds(b - 1, gameBoard);
+    size_t endRow = get_valid_bounds(a + 1, gameBoard);
+    size_t endCol = get_valid_bounds(b + 1, gameBoard);
+
+    //w obrębie pola (a, b) sprawdzamy czy nie znajduje się pole (row, col)
+    for(size_t i = startRow; i <= endRow; i++) {
+        for(size_t j = startCol; j <= endCol; j++) {
+            if(i == row && j == col) { //jeśli jest to pole to zwracamy 1
+                return 1;
+            }
+        }
+    }
+    //jak nie ma to zwracamy 0
+    return 0;
+}
+
 /*
  * -2 = bomba
  * -1 = nieznane
@@ -168,13 +192,6 @@ int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size
  * 1-8 = ilosc bomb
  */
 //funkcja dodająca numerki i bomby do planszy
-/*
- *TODO: (notatka dla siebie, nie chce nikogo do roboty zaganiać)
- * poprawić generowanie pola w indexie (firstRow, firstCol) aby mógł generować tam tylko "0"
- * przypisanie na twardo do tego pola zmiennej 0 powoduje że bomby pojawiaja się bez numerku obok
- * na tą chwilę numerki mogą się w tym polu generować
- * przetestować można dla seedu 1735042975 i pola startowego (1,1)
-*/
 void randomize_solution_to_board(board* board, size_t firstRow, size_t firstCol) {
     board_assert(board);
 
@@ -193,13 +210,19 @@ void randomize_solution_to_board(board* board, size_t firstRow, size_t firstCol)
         size_t row = rand() % board->rows;
         size_t col = rand() % board->cols;
 
+
+
         //jeśli wylosowaliśmy index gdzie jest już bomba to pomijamy
         if(board->SOLVED[row][col] == -2) {
             continue;
         }
 
-        //jeśli wylosowaliśmy index gdzie jest pierwsze pole to pomijamy
-        if(row == firstRow && col == firstCol) {
+
+
+        //jeśli w wylosowane pole z bombą sądiaduje z pierwszym indexem to pomijamy
+        //w minesweeperze jak sie zrobi 1 ruch to startowe pole zawsze jest puste
+        //dzieki temu w okolicy 1 pola nie ma bomb = nie ma numerkow = pole jest puste
+        if(is_index_next_to_field(firstRow, firstCol, row, col, board)) {
             continue;
         }
 

@@ -42,6 +42,7 @@ void start_game_from_saved_board(board* gameBoard)
     free_board(gameBoard);
 }
 
+
 static void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
     //szukamy pól które musimy rekurencyjnie przeszukać
     //wybieramy obszar 3x3 chyba że jesteśmy na granicy tablicy wtedy zmneijszamy granice aby uniknac segfaulta
@@ -131,7 +132,7 @@ void place_flag(size_t row, size_t col, board* gameBoard)
 
 //zwraca 1 jeśli pole nie jest bombą
 //zwraca 0 jeśli pole jest bombą
-int uncover_field(size_t row, size_t col, board* gameBoard)
+size_t uncover_field(size_t row, size_t col, board* gameBoard)
 {
     //sprawdzamy czy pole da się odsłonić - czyli czy nie wychodzi po za granice planszy i czy nie jest odsłonięte / nie jest bombą
     //możemy odsłonić tylko: nieznane pola (-1), bomby (-2), flagi (-3) i znaki zapytania (-4)
@@ -197,13 +198,11 @@ static void game_loop(board* gameBoard)
         print_board_game(gameBoard);
     }
 
-    if (wasGameWon == 1)
-    {
-        printf("You won! :)\n");
-        exit(0);
-    }
 
-    printf("You lost :(\n");
+
+    printf(wasGameWon == 1 ? "You won! :)\n" : "You lost :(\n");
+    printf("Score: %f", gameBoard->score);
+
     exit(0);
 }
 
@@ -227,7 +226,7 @@ int game_iter(board* gameBoard)
     free(line);
 
     //jeśli pierwsza czesc komendy ma wiecej niz 1 znak to jest zła
-    //nie ma komend co mają więcej niz 1 znak na startcie, a dzięki temu ifowi switcha można użyć
+    //nie ma komend co mają więcej niz 1 znak na starcie, a dzięki temu ifowi switcha można użyć
     if (strlen(*command) > 1)
     {
         printf("Invalid command!\n");
@@ -271,6 +270,7 @@ int game_iter(board* gameBoard)
 
                 //jeśli klikneliśmy w bombę to kończymy grę
                 if (uncover_field(row, col, gameBoard) == 0) {
+                    gameBoard->score = 0; //zerujemy wynik jeśli przegraliśmy
                     free_command(command, commandLength);
                     return 0;
                 }

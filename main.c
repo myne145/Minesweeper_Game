@@ -44,6 +44,7 @@ int main(int argc, char** argv) {
         size_t cols = 0;
         size_t bombs = 0;
         size_t seed = time(NULL);
+//        size_t seed = 1735671036;
         switch (option) {
             case 'l':
                 printf("Loading game from file: %s\n", optarg);
