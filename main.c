@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
                 sscanf(optarg, "%s", preset);
                 set_values_from_preset(preset, &rows, &cols, &bombs);
                 printf("Making game with size %zux%zu and %zu bombs.\nSeed: %zu\n", rows, cols, bombs, seed);
-                printf("Preset:9  %s\n", preset);
+                printf("Preset: %s\n", preset);
                 free(preset);
                 srand(seed);
                 board* gameBoard1 = make_board(rows, cols, bombs);

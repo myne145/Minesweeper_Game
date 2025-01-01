@@ -23,10 +23,6 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs);
 //@param Board - wskaźnik na plansze
 void free_board(board* Board);
 
-//Funkcja pokazująca plansze
-//@param Board - wskaźnik na plansze
-void print_board(board* Board);
-
 //Funkcja pokazująca plansze podczs gry (bez bomb)
 //@param Board - wskaźnik na plansze
 void print_board_game(board* Board);

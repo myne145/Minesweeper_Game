@@ -84,7 +84,7 @@ void free_board(board* Board){
 }
 
 //Funkcja pokazująca board
-void print_board_game(board* Board){
+void print_board_game(board* Board) {
     board_assert(Board);
     for(size_t i = 0; i < Board->rows; i++){
         if( i <= 9){ // jeśli i jest jednocyfrowe to dodajemy spacje
@@ -92,7 +92,7 @@ void print_board_game(board* Board){
         }
         printf("%zu. |",i);       // numer wiersza
         for(size_t j = 0; j < Board->cols; j++){
-            int val = Board->P[i][j]; // wartość pola
+            int val = DEBUG == 0 ? Board->P[i][j] : Board->SOLVED[i][j]; // wartość pola
             switch(val){
                 case -1:
                     printf(DEBUG == 0 ? " - |" : "-1 |");  // -1 to znacznik nieznanego pola
@@ -110,7 +110,7 @@ void print_board_game(board* Board){
                     if(val >= 1 && val <= 8){
                         printf(" %d |",val); // liczby od 1 do 8 to znaczniki ilości min w sąsiedztwie
                     }else{
-                        printf(" ? "); // inna wartość to znacznik błędu
+                        printf(DEBUG == 0 ? " ? " : " %d ", val); // inna wartość to znacznik błędu
                     }
                     break;
             }
@@ -135,7 +135,7 @@ void print_board_game(board* Board){
 }
 
 //helper do poprawienia indexu tablicy jeśli wychodzi po za granice
-size_t get_valid_bounds(size_t value, board* board) {
+size_t get_valid_bounds(long value, board* board) {
     if(value - 1 < 0) {
         value = 0;
     }
@@ -146,20 +146,15 @@ size_t get_valid_bounds(size_t value, board* board) {
 }
 
 //helper do zliczenia bomb w części planszy
+//start row, start col, end row, end col, board
 int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size_t endCol, board* board) {
     int bombCtr = 0;
-    size_t tempB = startCol;
-    while(startRow <= endRow) {
-        while(startCol <= endCol) {
-
-            //sprawdzanie czy pole jest bombą i inkrementowanie licznika jak jest
-            if(board->SOLVED[startRow][startCol] == -2) {
+    for(size_t i = startRow; i <= endRow; i++) {
+        for(size_t j = startCol; j <= endCol; j++) {
+            if(board->SOLVED[i][j] == -2) {
                 bombCtr++;
             }
-            startCol++;
         }
-        startCol = tempB;
-        startRow++;
     }
     return bombCtr;
 }
@@ -216,26 +211,24 @@ void randomize_solution_to_board(board* board, size_t firstRow, size_t firstCol)
             exit(-1);
         }
 
-        size_t row = rand() % board->rows;
-        size_t col = rand() % board->cols;
+        size_t bombRow = rand() % board->rows;
+        size_t bombCol = rand() % board->cols;
 
 
 
         //jeśli wylosowaliśmy index gdzie jest już bomba to pomijamy
-        if(board->SOLVED[row][col] == -2) {
+        if(board->SOLVED[bombRow][bombCol] == -2) {
             continue;
         }
-
-
 
         //jeśli w wylosowane pole z bombą sądiaduje z pierwszym indexem to pomijamy
         //w minesweeperze jak sie zrobi 1 ruch to startowe pole zawsze jest puste
         //dzieki temu w okolicy 1 pola nie ma bomb = nie ma numerkow = pole jest puste
-        if(is_index_next_to_field(firstRow, firstCol, row, col, board)) {
+        if(is_index_next_to_field(firstRow, firstCol, bombRow, bombCol, board)) {
             continue;
         }
 
-        board->SOLVED[row][col] = -2;
+        board->SOLVED[bombRow][bombCol] = -2;
 
         bombIter++;
     }

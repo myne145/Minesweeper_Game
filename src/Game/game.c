@@ -23,10 +23,9 @@ void start_game_from_board(board* gameBoard) {
     assert(scanf("%zu %zu", &row, &col) == 2);
     assert(row >= 0 && row < gameBoard->rows && col >= 0 && col < gameBoard->cols);
 
-    randomize_solution_to_board(gameBoard, row, col);
-    gameBoard->P[row][col] = gameBoard->SOLVED[row][col];
-
     //wyciągamy 1 iterację po za pętlę
+    gameBoard->P[row][col] = gameBoard->SOLVED[row][col];
+    randomize_solution_to_board(gameBoard, row, col);
     show_surrounding_empty_fields(row, col, gameBoard);
     print_board_game(gameBoard);
 
