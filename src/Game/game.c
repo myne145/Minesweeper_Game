@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "src/SaveAndLoadGame/save_load.h"
 #include "game_command.h"
@@ -176,8 +177,8 @@ static int is_game_won(board* gameBoard)
                 continue;
             }
 
-            //jeśli pola nie sa takie same
-            if (gameBoard->P[i][j] != gameBoard->SOLVED[i][j])
+            //jeśli pola nie sa takie same lub na planszy użytkownika została odkryta bomba
+            if (gameBoard->P[i][j] != gameBoard->SOLVED[i][j] || gameBoard->P[i][j] == -2)
             {
                 return 0;
             }
@@ -198,11 +199,25 @@ static void game_loop(board* gameBoard)
     }
 
 
+    printf(wasGameWon == 1 ? "\n-=-=-=-=-=-=-=-=-=-=-=-=-You won :)=-=-=-=-=-=-=-=-=-=-=-=-=-\n" :
+    "\n-=-=-=-=-=-=-=-=-=-=-=-=-You lost :(=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
+    printf("Score:\t%f\n", gameBoard->score);
 
-    printf(wasGameWon == 1 ? "You won! :)\n" : "You lost :(\n");
-    printf("Score: %f", gameBoard->score);
 
-    exit(0);
+    printf("Try again with the same settings? (Y/n)\t");
+    char c = fgetc(stdin);
+    if(c != 'y' && c != 'Y' && c != '\n') {
+        exit(0);
+    }
+
+    size_t seed = time(NULL);
+    srand(seed);
+    board* newGameBoard = make_board(gameBoard->rows, gameBoard->cols, gameBoard->amountOfBombs);
+    free_board(gameBoard);
+    printf("Retrying with size %zux%zu and %zu bombs.\nSeed: %zu\n",
+           newGameBoard->rows, newGameBoard->cols, newGameBoard->amountOfBombs, seed);
+    start_game_from_board(newGameBoard);
+
 }
 
 //zwraca 1 jeśli gra jest w toku

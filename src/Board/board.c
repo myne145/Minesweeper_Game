@@ -241,11 +241,6 @@ void randomize_solution_to_board(board* board, size_t firstRow, size_t firstCol)
                 continue;
             }
 
-            //jeśli wylosowaliśmy index gdzie jest pierwsze pole to pomijamy
-            // if(i == firstRow && j == firstCol) {
-            //     continue;
-            // }
-
             //czy jak sprawdzamy ilość bomb w promieniu 1 to czy nie wyjdziemy po za granice tablicy
             size_t startRow = get_valid_bounds(i - 1, board);
             size_t startCol = get_valid_bounds(j - 1, board);
