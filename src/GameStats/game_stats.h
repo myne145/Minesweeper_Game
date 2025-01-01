@@ -1,0 +1,8 @@
+//
+// Created by antekk on 1/1/25.
+//
+
+#ifndef MINESWEEPER_JIMP1_GAME_STATS_H
+#define MINESWEEPER_JIMP1_GAME_STATS_H
+
+#endif //MINESWEEPER_JIMP1_GAME_STATS_H

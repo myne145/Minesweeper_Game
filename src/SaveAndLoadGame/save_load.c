@@ -4,6 +4,8 @@
 #include <stdio.h> // Dla fread, fwrite
 #include <stdlib.h>
 
+#include "../Game/game_command.h"
+
 //Funckja zapisująca grę do bliku binarnego wybranego przez gracza
 static void save_game(char* save_name,board* Board){
     assert(save_name != NULL); // Sprawdzamy czy nazwa nie jest pusta
@@ -86,10 +88,8 @@ void save_with_exit_confirmation(board* gameBoard, char* filename)
     }
     save_game(filename, gameBoard);
     printf("Succesfully saved the game to file %s", filename);
-    printf("Do you want to quit? (y/N)\n");
-    char c = fgetc(stdin);
-    if (c == 'y' || c == 'Y')
-    {
+    int status = show_yes_no_input_field("Do you want to quit?", 0);
+    if(status == 1) {
         exit(0);
     }
 }

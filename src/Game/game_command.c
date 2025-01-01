@@ -7,6 +7,23 @@
 #include <string.h>
 #include "game_command.h"
 
+int show_yes_no_input_field(char* text, int defaultYes) {
+    if(defaultYes != 1 && defaultYes != 0)
+        return -1;
+    char* msg = malloc(2 * sizeof(char ));
+    msg[0] = (char) ('y' - (defaultYes * 32));
+    msg[1] = (char) ('N' + (defaultYes * 32));
+    printf("%s (%c, %c)\t", text, msg[0], msg[1]);
+    free(msg);
+    char c = fgetc(stdin);
+    if(c == 'y' || c == 'Y')
+        return 1;
+    else if(c == 'n' || c == 'N')
+        return 0;
+    else if(c == '\n')
+        return defaultYes;
+    return 0;
+}
 
 char** split_command_by_spaces(char* line, int* commandLength) {
 //dzielimy komendę po spacjach na tablice stringów

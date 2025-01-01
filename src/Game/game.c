@@ -30,16 +30,13 @@ void start_game_from_board(board* gameBoard) {
     show_surrounding_empty_fields(row, col, gameBoard);
     print_board_game(gameBoard);
 
-    game_loop(gameBoard);
-
-    free_board(gameBoard);
+    game_loop(gameBoard); //free przeniesione do pętli
 }
 
 void start_game_from_saved_board(board* gameBoard)
 {
     board_assert(gameBoard);
-    game_loop(gameBoard);
-    free_board(gameBoard);
+    game_loop(gameBoard); //free przeniesione do pętli
 }
 
 
@@ -204,9 +201,9 @@ static void game_loop(board* gameBoard)
     printf("Score:\t%f\n", gameBoard->score);
 
 
-    printf("Try again with the same settings? (Y/n)\t");
-    char c = fgetc(stdin);
-    if(c != 'y' && c != 'Y' && c != '\n') {
+    int status = show_yes_no_input_field("Try again with the same settings?", 1);
+    if(status == 0) {
+        free_board(gameBoard);
         exit(0);
     }
 
