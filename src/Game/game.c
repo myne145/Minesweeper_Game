@@ -209,7 +209,9 @@ void save_to_leaderboards_with_confirmation(board* gameBoard) {
     }
 
     player* currentPlayer = create_player(name, gameBoard->score, gameBoard->timeInMillis);
+    free(name);
     add_player_to_stats_file(currentPlayer);
+    free_player(currentPlayer);
 }
 
 static void game_loop(board* gameBoard)
