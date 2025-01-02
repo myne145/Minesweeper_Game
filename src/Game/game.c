@@ -15,6 +15,7 @@
 
 static int game_iter(board* gameBoard);
 static void game_loop(board* gameBoard);
+void update_score(size_t amountOfRevealedFields, board* gameBoard);
 
 void start_game_from_board(board* gameBoard) {
     //plansza która ma już wszystkie pola odkryte
@@ -26,9 +27,13 @@ void start_game_from_board(board* gameBoard) {
     assert(row >= 0 && row < gameBoard->rows && col >= 0 && col < gameBoard->cols);
 
     //wyciągamy 1 iterację po za pętlę
+    size_t* revealedFields = calloc(1, sizeof(size_t));
     gameBoard->P[row][col] = gameBoard->SOLVED[row][col];
     randomize_solution_to_board(gameBoard, row, col);
-    show_surrounding_empty_fields(row, col, gameBoard);
+    show_surrounding_empty_fields(row, col, revealedFields, gameBoard);
+    update_score(*revealedFields, gameBoard);
+
+    free(revealedFields);
     print_board_game(gameBoard);
 
     game_loop(gameBoard); //free przeniesione do pętli
@@ -40,8 +45,11 @@ void start_game_from_saved_board(board* gameBoard)
     game_loop(gameBoard); //free przeniesione do pętli
 }
 
+void update_score(size_t amountOfRevealedFields, board* gameBoard) {
+    gameBoard->score += amountOfRevealedFields * gameBoard->multiplier;
+}
 
-static void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard) {
+static void show_surrounding_empty_fields(size_t row, size_t col, size_t* buffer, board* gameBoard) {
     //szukamy pól które musimy rekurencyjnie przeszukać
     //wybieramy obszar 3x3 chyba że jesteśmy na granicy tablicy wtedy zmneijszamy granice aby uniknac segfaulta
     //można tu było użyć funkcji get_valid_bounds z board.h, ale bez tego czytelniej jest
@@ -77,6 +85,10 @@ static void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoa
             //dodatkowo pole nie jest bombą - nie chcemy odkrywać bomb żeby użytkownik je widział (następny if do tego)
             if (gameBoard->SOLVED[a][b] != 0 && gameBoard->SOLVED[a][b] != -2)
             {
+                //zwiększamy ilość odkrytych pól tylko wtedy gdy pole na planszy użytkownika
+                //nie zostało jeszcze odkryte
+                *buffer += gameBoard->P[a][b] == -1;
+
                 //tutaj ustawiamy numerek sąsiadujący z pustym polem
                 gameBoard->P[a][b] = gameBoard->SOLVED[a][b];
                 continue;
@@ -84,7 +96,7 @@ static void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoa
 
             //jeśli pole jest bombą też pomijamy, ale zamiast je odkrywać, pokazujemy userowi że pole jest nieznane
             //warunek 2 i 3 - pole też nie może być flagą, jako że flagi zaznaczamy tylko na planszy użytkownika,
-            //sprawdzamy też i ją żeby przypadkiem nie usunąć flagi  planszy
+            //sprawdzamy też i ją żeby przypadkiem nie usunąć flagi z planszy
             if (gameBoard->SOLVED[a][b] == -2 && gameBoard->P[a][b] != -3 && gameBoard->P[a][b] != -4)
             {
                 gameBoard->P[a][b] = -1;
@@ -106,8 +118,9 @@ static void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoa
 
             //jeśli żaden z powyższych warunków nie jest prawdziwy to można uznać że pole jest polem pustym i można rekurencyjnie sprawdzać dalej
             gameBoard->P[a][b] = 0;
+            ++*buffer;
             //rekurencja
-            show_surrounding_empty_fields(a, b, gameBoard);
+            show_surrounding_empty_fields(a, b, buffer, gameBoard);
         }
     }
 }
@@ -139,7 +152,9 @@ size_t uncover_field(size_t row, size_t col, board* gameBoard)
         printf("Position (%zu, %zu) is invalid\n", row, col); //jak drukuje się to na stderr, pojawia się po następnej komendzie - dwa różne wyjścia standardowe
         return 1;
     }
+
     gameBoard->P[row][col] = gameBoard->SOLVED[row][col]; //odsłonięcie pola - przypisanie wartości z planszy rozwiązania do planszy usera
+    update_score(1, gameBoard);
 
     //jeśli pole jest bombą i je odsłoniliśmy to przegrywamy
     if (gameBoard->SOLVED[row][col] == -2)
@@ -153,8 +168,11 @@ size_t uncover_field(size_t row, size_t col, board* gameBoard)
         return 1;
     }
 
+    size_t amountOfRevealedFields = 0;
     //rekurencyjna funkcja która odsłoni wszystkie sąsiadujące ze sobą pola z zeroma bombami
-    show_surrounding_empty_fields(row, col, gameBoard);
+    show_surrounding_empty_fields(row, col, &amountOfRevealedFields, gameBoard);
+    update_score(amountOfRevealedFields, gameBoard);
+
     return 1;
 }
 

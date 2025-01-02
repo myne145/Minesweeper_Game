@@ -20,10 +20,11 @@ void start_game_from_saved_board(board* gameBoard);
 
 /**
  * W otoczeniu pola (row,column) szuka i odsłania wszystkie pola które są puste (nie są bombami, nie sąsiadują z żadnymi)
- * @param gameBoard plansza
  * @param row rząd
  * @param col kolumna
+ * @param buffer bufor przechowujący ilość odkrytych pól w całym drzewie wywołań funkcji
+ * @param gameBoard plansza
  */
-static void show_surrounding_empty_fields(size_t row, size_t col, board* gameBoard);
+static void show_surrounding_empty_fields(size_t row, size_t col, size_t* buffer, board* gameBoard);
 
 #endif //GAME_H
