@@ -204,7 +204,7 @@ void save_to_leaderboards_with_confirmation(board* gameBoard) {
     //wyrzucamy nowa linie z imienia usera
     for(int i = 0; i < strlen(name); i++) {
         if(name[i] == '\n') {
-            name[i] = ' ';
+            name[i] = (char) NULL;
         }
     }
 
@@ -240,6 +240,7 @@ static void game_loop(board* gameBoard)
     for(int i = 0; i < amountOfPlayersToPrint; i++)
         free_player(players[i]);
     free(players);
+
 
     int status = show_yes_no_input_field("Try again with the same settings?", 1);
     if(status == 0) {

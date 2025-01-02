@@ -16,10 +16,11 @@ int show_yes_no_input_field(char* text, int defaultYes) {
     printf("%s (%c, %c)\t", text, msg[0], msg[1]);
     free(msg);
     char c = fgetc(stdin);
+    if(c == '\n')
+        return defaultYes;
+    fgetc(stdin);
     if(c == 'y' || c == 'Y')
         return 1;
-    else if(c == '\n')
-        return defaultYes;
     return 0;
 }
 
