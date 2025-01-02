@@ -7,7 +7,9 @@
 
 #include <stdlib.h>
 
-//struktura przechowująca gracza
+/**
+ * Struktura przechowujaca gracza
+ */
 typedef struct player {
     char* name;
     double score;
@@ -36,8 +38,17 @@ void add_player_to_stats_file(player* newPlayer);
  */
 player** load_n_best_players_from_stats_file(int* n);
 
+/**
+ * Zwalnia pamiec zajmowana przez gracza
+ * @param player1 gracz
+ */
 void free_player(player* player1);
 
+/**
+ * Drukuje tablice graczy
+ * @param players tablica graczy
+ * @param length długość tablicy graczy
+ */
 void print_players_(player** players, int length);
 
 
