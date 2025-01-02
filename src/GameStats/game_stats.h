@@ -38,4 +38,7 @@ player** load_n_best_players_from_stats_file(int* n);
 
 void free_player(player* player1);
 
+void print_players_(player** players, int length);
+
+
 #endif //MINESWEEPER_JIMP1_GAME_STATS_H

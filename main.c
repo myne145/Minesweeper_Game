@@ -8,6 +8,7 @@
 #include "src/Board/board.h"
 #include "src/SaveAndLoadGame/save_load.h"
 #include "src/Game/game.h"
+#include "src/GameStats/game_stats.h"
 
 void set_values_from_preset(char* preset, size_t* rows, size_t* cols, size_t* bombs)
 {

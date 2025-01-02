@@ -11,6 +11,7 @@
 
 #include "src/SaveAndLoadGame/save_load.h"
 #include "game_command.h"
+#include "src/GameStats/game_stats.h"
 
 static int game_iter(board* gameBoard);
 static void game_loop(board* gameBoard);
@@ -185,6 +186,32 @@ static int is_game_won(board* gameBoard)
     return 1;
 }
 
+void save_to_leaderboards_with_confirmation(board* gameBoard) {
+    int status = show_yes_no_input_field("Save score to the leaderboards?", 1);
+    if(status == 0) {
+        return;
+    }
+
+    printf("Enter your name:\t");
+    char* name = NULL;
+    size_t size;
+    //sprawdzamy czy udało się wczytać linie
+    while (getline(&name, &size, stdin) == -1)
+    {
+        printf("Invalid name!\n");
+    }
+
+    //wyrzucamy nowa linie z imienia usera
+    for(int i = 0; i < strlen(name); i++) {
+        if(name[i] == '\n') {
+            name[i] = ' ';
+        }
+    }
+
+    player* currentPlayer = create_player(name, gameBoard->score, gameBoard->timeInMillis);
+    add_player_to_stats_file(currentPlayer);
+}
+
 static void game_loop(board* gameBoard)
 {
     int gameStatus = 1;
@@ -200,6 +227,17 @@ static void game_loop(board* gameBoard)
     "\n-=-=-=-=-=-=-=-=-=-=-=-=-You lost :(=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
     printf("Score:\t%f\n", gameBoard->score);
 
+
+    save_to_leaderboards_with_confirmation(gameBoard);
+    int amountOfPlayersToPrint = 5;
+    player** players = load_n_best_players_from_stats_file(&amountOfPlayersToPrint);
+
+    printf("%d Best players:\n", amountOfPlayersToPrint);
+    printf("Name\tScore\tTime\n");
+    print_players_(players, amountOfPlayersToPrint);
+    for(int i = 0; i < amountOfPlayersToPrint; i++)
+        free_player(players[i]);
+    free(players);
 
     int status = show_yes_no_input_field("Try again with the same settings?", 1);
     if(status == 0) {
@@ -289,7 +327,7 @@ int game_iter(board* gameBoard)
             break;
 
         case 's':
-            save_with_exit_confirmation(gameBoard, line + 2);
+            save_with_exit_confirmation(gameBoard, *(command + 1));
             break;
 
         case 'h':

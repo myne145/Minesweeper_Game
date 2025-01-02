@@ -12,6 +12,7 @@ typedef struct Board {
     size_t amountOfBombs; //ilość bomb
     float score; //wynik użytkownika na planszy
     float multiplier; //mnożnik do wyniku dla planszy - łatwy = 1, średni = 2, trudny = 3, dla customowych liczony "manualnie"
+    size_t timeInMillis; //czas gry w milisekundach
 } board;
 
 //Funkcja alokująca pamiec dla planszy

@@ -42,8 +42,9 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
     newBoard->rows = rows;
     newBoard->cols = cols;
     newBoard->amountOfBombs = amountOfBombs;
-    newBoard->score = 0;
+    newBoard->score = 0; //TODO: poprawne wyliczenie score'a
     newBoard->multiplier = 1; //TODO: poprawne wyliczenie multipliera
+    newBoard->timeInMillis = 0; //TODO: poprawne wyliczenie czasu
 
     //alokacja wierszy dla obu tablic
     newBoard->P = (int**)malloc(rows * sizeof(int*));

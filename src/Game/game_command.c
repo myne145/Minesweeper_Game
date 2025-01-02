@@ -18,8 +18,6 @@ int show_yes_no_input_field(char* text, int defaultYes) {
     char c = fgetc(stdin);
     if(c == 'y' || c == 'Y')
         return 1;
-    else if(c == 'n' || c == 'N')
-        return 0;
     else if(c == '\n')
         return defaultYes;
     return 0;

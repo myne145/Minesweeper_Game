@@ -56,12 +56,8 @@ void add_player_to_stats_file(player* newPlayer) {
 
 player** load_n_best_players_from_stats_file(int* n) {
     player** bestPlayers = malloc(MAX_PLAYERS * sizeof(player*));
-//    for(int i = 0; i < MAX_PLAYERS; i++) { //mniej oszczędnie to się chyba nie dało :((
-//        *(bestPlayers + i) = malloc(sizeof(player*));
-//        assert(*(bestPlayers + i) != NULL);
-//    }
-
     assert(STATS_FILE_NAME != NULL);
+
     FILE* file = fopen(STATS_FILE_NAME, "rb");
     if(file == NULL) {
         file = fopen(STATS_FILE_NAME, "a+b");
@@ -94,9 +90,6 @@ player** load_n_best_players_from_stats_file(int* n) {
 
         status = fread(&timeInMillis, sizeof(size_t), 1, file);
         if(status != 1) break;
-
-//        *(bestPlayers + i) = malloc(sizeof(player*));
-//        assert(*(bestPlayers + i) != NULL);
 
         player* newPlayer = create_player(playerName, score, timeInMillis);
         bestPlayers[i] = newPlayer;
@@ -135,4 +128,11 @@ player** load_n_best_players_from_stats_file(int* n) {
     free(bestPlayers);
 
     return result;
+}
+
+void print_players_(player** players, int length) {
+    for(int i = 0; i < length; i++) {
+        player* p = players[i];
+        printf("%s\t%lf\t%ld\n", p->name, p->score, p->timeInMillis);
+    }
 }
