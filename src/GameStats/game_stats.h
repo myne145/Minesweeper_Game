@@ -13,17 +13,17 @@
 typedef struct player {
     char* name;
     double score;
-    size_t timeInMillis;
+    struct timeval* playerGameTime;
 } player;
 
 /**
  * Funkcja inicjalizująca strukturę player
  * @param name
  * @param score
- * @param timeInMillis
+ * @param gameTime
  * @return zainicjalizowana struktura
  */
-player* create_player(char* name, double score, size_t timeInMillis);
+player* create_player(char* name, double score, struct timeval* gameTime);
 
 /**
  * Dodaje gracza do pliku ze statystykami

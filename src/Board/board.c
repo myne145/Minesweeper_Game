@@ -44,7 +44,7 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
     newBoard->amountOfBombs = amountOfBombs;
     newBoard->score = 0; //TODO: poprawne wyliczenie score'a
     newBoard->multiplier = 1; //TODO: poprawne wyliczenie multipliera
-    newBoard->timeInMillis = 0; //TODO: poprawne wyliczenie czasu
+    newBoard->gameTime = malloc(sizeof(struct timeval)); //przypisuje pamiec do struktury z czasem gry
 
     //alokacja wierszy dla obu tablic
     newBoard->P = (int**)malloc(rows * sizeof(int*));
@@ -81,6 +81,7 @@ void free_board(board* Board){
     }
     free(Board->P); // zwalniamy wiersze
     free(Board->SOLVED); // zwalniamy wiersze
+    free(Board->gameTime);
     free(Board);    // zwalniamy całą plansze
 }
 

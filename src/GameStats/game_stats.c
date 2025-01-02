@@ -10,7 +10,7 @@
 #define STATS_FILE_NAME "MINESWEEPER_STATS"
 #define MAX_PLAYERS 1000
 
-player* create_player(char* name, double score, size_t timeInMillis) {
+player* create_player(char* name, double score, struct timeval* gameTime) {
     assert(name != NULL);
     assert(score >= 0);
 
@@ -21,7 +21,10 @@ player* create_player(char* name, double score, size_t timeInMillis) {
 
     strcpy(newPlayer->name, name);
     newPlayer->score = score;
-    newPlayer->timeInMillis = timeInMillis;
+
+    newPlayer->playerGameTime = malloc(sizeof(struct timeval));
+    newPlayer->playerGameTime->tv_sec = gameTime->tv_sec;
+    newPlayer->playerGameTime->tv_usec = gameTime->tv_usec;
 
     return newPlayer;
 }
@@ -29,6 +32,7 @@ player* create_player(char* name, double score, size_t timeInMillis) {
 void free_player(player* player1) {
     if(player1 == NULL)
         return;
+    free(player1->playerGameTime);
     free(player1->name);
     free(player1);
 }
@@ -47,7 +51,9 @@ void add_player_to_stats_file(player* newPlayer) {
     assert(status == 1);
     status = fwrite(&newPlayer->score, sizeof(double), 1, file);
     assert(status == 1);
-    status = fwrite(&newPlayer->timeInMillis, sizeof(size_t), 1, file);
+    status = fwrite(&newPlayer->playerGameTime->tv_sec, sizeof(size_t), 1, file); //wczytujemy sekundy
+    assert(status == 1);
+    status = fwrite(&newPlayer->playerGameTime->tv_usec, sizeof(size_t), 1, file); //wczytujemy milisekundy
     assert(status == 1);
     fclose(file);
 }
@@ -69,7 +75,7 @@ player** load_n_best_players_from_stats_file(int* n) {
     int playerNameLength = 0;
     char* playerName = malloc(sizeof(char*));
     double score = 0;
-    size_t timeInMillis = 0;
+    struct timeval* timeInMillis = malloc(sizeof(struct timeval));
 
     int i = 0;
     for(; i < MAX_PLAYERS; i++) {
@@ -88,7 +94,10 @@ player** load_n_best_players_from_stats_file(int* n) {
         status = fread(&score, sizeof(double), 1, file);
         if(status != 1 || score < 0) break;
 
-        status = fread(&timeInMillis, sizeof(size_t), 1, file);
+        status = fread(&timeInMillis->tv_sec, sizeof(size_t), 1, file); //ładujemy sekundy
+        if(status != 1) break;
+
+        status = fread(&timeInMillis->tv_usec, sizeof(size_t), 1, file); //ładujemy mikrosekundy
         if(status != 1) break;
 
         player* newPlayer = create_player(playerName, score, timeInMillis);
@@ -118,7 +127,7 @@ player** load_n_best_players_from_stats_file(int* n) {
     }
     player** result = malloc(*n * sizeof(player*));
     for(int j = 0; j < *n; j++) {
-        player* temp = create_player(bestPlayers[j]->name, bestPlayers[j]->score, bestPlayers[j]->timeInMillis);
+        player* temp = create_player(bestPlayers[j]->name, bestPlayers[j]->score, bestPlayers[j]->playerGameTime);
         result[j] = temp;
     }
 
@@ -133,6 +142,6 @@ player** load_n_best_players_from_stats_file(int* n) {
 void print_players_(player** players, int length) {
     for(int i = 0; i < length; i++) {
         player* p = players[i];
-        printf("%s\t%lf\t%ld\n", p->name, p->score, p->timeInMillis);
+        printf("%s\t%lf\t%zu.%zu\n", p->name, p->score, p->playerGameTime->tv_sec, p->playerGameTime->tv_usec / 1000);
     }
 }

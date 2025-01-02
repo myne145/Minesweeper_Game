@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 
 #include "src/SaveAndLoadGame/save_load.h"
 #include "game_command.h"
@@ -26,14 +27,16 @@ void start_game_from_board(board* gameBoard) {
     assert(scanf("%zu %zu", &row, &col) == 2);
     assert(row >= 0 && row < gameBoard->rows && col >= 0 && col < gameBoard->cols);
 
+    assert(gettimeofday(gameBoard->gameTime, NULL) == 0); //ustawianie czasu gry na obecny czas unixowy
+
     //wyciągamy 1 iterację po za pętlę
     size_t* revealedFields = calloc(1, sizeof(size_t));
     gameBoard->P[row][col] = gameBoard->SOLVED[row][col];
     randomize_solution_to_board(gameBoard, row, col);
     show_surrounding_empty_fields(row, col, revealedFields, gameBoard);
     update_score(*revealedFields, gameBoard);
-
     free(revealedFields);
+
     print_board_game(gameBoard);
 
     game_loop(gameBoard); //free przeniesione do pętli
@@ -226,7 +229,7 @@ void save_to_leaderboards_with_confirmation(board* gameBoard) {
         }
     }
 
-    player* currentPlayer = create_player(name, gameBoard->score, gameBoard->timeInMillis);
+    player* currentPlayer = create_player(name, gameBoard->score, gameBoard->gameTime);
     free(name);
     add_player_to_stats_file(currentPlayer);
     free_player(currentPlayer);
@@ -242,10 +245,18 @@ static void game_loop(board* gameBoard)
         print_board_game(gameBoard);
     }
 
+    //zatrzymujemy czas gry odejmując wartość początkową od końcowej
+    struct timeval* currentTime = malloc(sizeof(struct timeval));
+    gettimeofday(currentTime, NULL);
+    gameBoard->gameTime->tv_sec = currentTime->tv_sec - gameBoard->gameTime->tv_sec;
+    gameBoard->gameTime->tv_usec = currentTime->tv_usec - gameBoard->gameTime->tv_usec;
+    free(currentTime);
+
 
     printf(wasGameWon == 1 ? "\n-=-=-=-=-=-=-=-=-=-=-=-=-You won :)=-=-=-=-=-=-=-=-=-=-=-=-=-\n" :
     "\n-=-=-=-=-=-=-=-=-=-=-=-=-You lost :(=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
     printf("Score:\t%f\n", gameBoard->score);
+    printf("Time:\t%zu.%zu\n", gameBoard->gameTime->tv_sec, gameBoard->gameTime->tv_usec / 1000);
 
 
     save_to_leaderboards_with_confirmation(gameBoard);
