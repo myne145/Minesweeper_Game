@@ -74,7 +74,7 @@ player** load_n_best_players_from_stats_file(int* n) {
     int playerNameLength = 0;
     char* playerName = malloc(sizeof(char*));
     double score = 0;
-    struct timeval* timeInMillis = malloc(sizeof(struct timeval));
+    struct timeval* playerTime = malloc(sizeof(struct timeval));
 
     int i = 0;
     for(; i < MAX_PLAYERS; i++) {
@@ -93,16 +93,19 @@ player** load_n_best_players_from_stats_file(int* n) {
         status = fread(&score, sizeof(double), 1, file);
         if(status != 1 || score < 0) break;
 
-        status = fread(&timeInMillis->tv_sec, sizeof(size_t), 1, file); //ładujemy sekundy
+        status = fread(&playerTime->tv_sec, sizeof(size_t), 1, file); //ładujemy sekundy
         if(status != 1) break;
 
-        status = fread(&timeInMillis->tv_usec, sizeof(size_t), 1, file); //ładujemy mikrosekundy
+        status = fread(&playerTime->tv_usec, sizeof(size_t), 1, file); //ładujemy mikrosekundy
         if(status != 1) break;
 
-        player* newPlayer = create_player(playerName, score, timeInMillis);
+        player* newPlayer = create_player(playerName, score, playerTime);
         bestPlayers[i] = newPlayer;
 
+        free(playerTime);
+        playerTime = malloc(sizeof(struct timeval));
     }
+    free(playerTime);
     fclose(file);
 
     if(playerName != NULL) {

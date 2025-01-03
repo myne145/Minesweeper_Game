@@ -42,7 +42,7 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
     newBoard->rows = rows;
     newBoard->cols = cols;
     newBoard->amountOfBombs = amountOfBombs;
-    newBoard->score = 0; //TODO: poprawne wyliczenie score'a
+    newBoard->score = 0;
     newBoard->multiplier = 1; //TODO: poprawne wyliczenie multipliera
     newBoard->gameTime = malloc(sizeof(struct timeval)); //przypisuje pamiec do struktury z czasem gry
 
