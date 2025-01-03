@@ -144,6 +144,6 @@ player** load_n_best_players_from_stats_file(int* n) {
 void print_players_(player** players, int length) {
     for(int i = 0; i < length; i++) {
         player* p = players[i];
-        printf("%s\t%lf\t%zu.%zu\n", p->name, p->score, p->playerGameTime->tv_sec, p->playerGameTime->tv_usec / 1000);
+        printf("\t%s\t\t%lf\t\t%zu.%zu\n", p->name, p->score, p->playerGameTime->tv_sec, p->playerGameTime->tv_usec / 1000);
     }
 }

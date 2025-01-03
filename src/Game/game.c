@@ -266,7 +266,7 @@ static void game_loop(board* gameBoard)
     "\n-=-=-=-=-=-=-=-=-=-=-=-=-You lost :(=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
     printf("Your stats:\n");
     printf("Score:\t%f\n", gameBoard->score);
-    printf("Time:\t%zu.%zu\n", gameBoard->gameTime->tv_sec, gameBoard->gameTime->tv_usec / 1000);
+    printf("Time:\t%zu.%zus\n", gameBoard->gameTime->tv_sec, gameBoard->gameTime->tv_usec / 1000);
 
     if(wasGameWon) //nawet nie pytamy usera o dodanie wyniku do leaderboardsów jak przegrał
         save_to_leaderboards_with_confirmation(gameBoard);
@@ -275,7 +275,7 @@ static void game_loop(board* gameBoard)
     player** players = load_n_best_players_from_stats_file(&amountOfPlayersToPrint);
 
     printf("%d Best players:\n", amountOfPlayersToPrint);
-    printf("Name\tScore\tTime\n");
+    printf("\tName\t\tScore\t\tTime\n");
     print_players_(players, amountOfPlayersToPrint);
     for(int i = 0; i < amountOfPlayersToPrint; i++)
         free_player(players[i]);
