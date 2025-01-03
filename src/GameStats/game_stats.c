@@ -59,7 +59,6 @@ void add_player_to_stats_file(player* newPlayer) {
 }
 
 
-
 player** load_n_best_players_from_stats_file(int* n) {
     player** bestPlayers = malloc(MAX_PLAYERS * sizeof(player*));
     assert(STATS_FILE_NAME != NULL);

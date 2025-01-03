@@ -45,6 +45,15 @@ void start_game_from_board(board* gameBoard) {
 void start_game_from_saved_board(board* gameBoard)
 {
     board_assert(gameBoard);
+
+    //jako że czas przechowywany w savie jest już wyliczony, odejmujemy go od obecnego timestampa
+    //zaczynamy grę w przeszłości
+    struct timeval* timeval = malloc(sizeof(struct timeval));
+    gettimeofday(timeval, NULL);
+    gameBoard->gameTime->tv_sec = timeval->tv_sec - gameBoard->gameTime->tv_sec;
+    gameBoard->gameTime->tv_usec = timeval->tv_usec - gameBoard->gameTime->tv_usec;
+    free(timeval);
+
     game_loop(gameBoard); //free przeniesione do pętli
 }
 
@@ -255,11 +264,13 @@ static void game_loop(board* gameBoard)
 
     printf(wasGameWon == 1 ? "\n-=-=-=-=-=-=-=-=-=-=-=-=-You won :)=-=-=-=-=-=-=-=-=-=-=-=-=-\n" :
     "\n-=-=-=-=-=-=-=-=-=-=-=-=-You lost :(=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
+    printf("Your stats:\n");
     printf("Score:\t%f\n", gameBoard->score);
     printf("Time:\t%zu.%zu\n", gameBoard->gameTime->tv_sec, gameBoard->gameTime->tv_usec / 1000);
 
+    if(wasGameWon) //nawet nie pytamy usera o dodanie wyniku do leaderboardsów jak przegrał
+        save_to_leaderboards_with_confirmation(gameBoard);
 
-    save_to_leaderboards_with_confirmation(gameBoard);
     int amountOfPlayersToPrint = 5;
     player** players = load_n_best_players_from_stats_file(&amountOfPlayersToPrint);
 
