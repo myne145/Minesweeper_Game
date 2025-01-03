@@ -5,6 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "src/RayLibGUI/ray.h"
 #include "src/Board/board.h"
 #include "src/SaveAndLoadGame/save_load.h"
 #include "src/Game/game.h"
@@ -39,12 +40,16 @@ void set_values_from_preset(char* preset, size_t* rows, size_t* cols, size_t* bo
 
 int main(int argc, char** argv) {
     int option;
-    while((option = getopt(argc, argv, "l:m:hp:")) != -1) {
+    while((option = getopt(argc, argv, "l:m:hp:g")) != -1) {
         size_t rows = 0;
         size_t cols = 0;
         size_t bombs = 0;
         size_t seed = time(NULL);
         switch (option) {
+            case 'g':
+                printf("Starting game\n");
+                gui();
+                break;
             case 'l':
                 printf("Loading game from file: %s\n", optarg);
                 board* loadedBoard = load_game(optarg);
