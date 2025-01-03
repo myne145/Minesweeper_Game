@@ -4,6 +4,7 @@
 #include <stdio.h> // Dla fread, fwrite
 #include <stdlib.h>
 #include <sys/time.h>
+#include <string.h>
 
 #include "../Game/game_command.h"
 
@@ -115,6 +116,13 @@ void save_with_exit_confirmation(board* gameBoard, char* filename)
     gameBoard->gameTime->tv_sec = timeval->tv_sec - gameBoard->gameTime->tv_sec;
     gameBoard->gameTime->tv_usec = timeval->tv_usec - gameBoard->gameTime->tv_usec;
     free(timeval);
+
+    //wyrzucamy nowa linie z nazwy pliku
+    for(int i = 0; i < strlen(filename); i++) {
+        if(filename[i] == '\n') {
+            filename[i] = (char) NULL;
+        }
+    }
 
     save_game(filename, gameBoard);
     printf("Succesfully saved the game to file %s", filename);
