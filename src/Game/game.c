@@ -256,19 +256,15 @@ static void game_loop(board* gameBoard)
         print_board_game(gameBoard);
     }
 
-    //zatrzymujemy czas gry odejmując wartość początkową od końcowej
-    struct timeval* currentTime = malloc(sizeof(struct timeval));
-    gettimeofday(currentTime, NULL);
-    gameBoard->gameTime->tv_sec = currentTime->tv_sec - gameBoard->gameTime->tv_sec;
-    gameBoard->gameTime->tv_usec = currentTime->tv_usec - gameBoard->gameTime->tv_usec;
-    free(currentTime);
+    //zatrzymujemy czas gry tutaj, bo wyszlismy z petli czyli koniec gry
+    calculate_game_board_time_using_local_time(gameBoard);
 
 
     printf(wasGameWon == 1 ? "\n-=-=-=-=-=-=-=-=-=-=-=-=-You won :)=-=-=-=-=-=-=-=-=-=-=-=-=-\n" :
     "\n-=-=-=-=-=-=-=-=-=-=-=-=-You lost :(=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
     printf("Your stats:\n");
     printf("Score:\t%f\n", gameBoard->score);
-    printf("Time:\t%zu.%zus\n", gameBoard->gameTime->tv_sec, gameBoard->gameTime->tv_usec / 1000);
+    printf("Time:\t%02zu.%zus\n", gameBoard->gameTime->tv_sec, gameBoard->gameTime->tv_usec / 1000);
 
     if(wasGameWon) //nawet nie pytamy usera o dodanie wyniku do leaderboardsów jak przegrał
         save_to_leaderboards_with_confirmation(gameBoard);

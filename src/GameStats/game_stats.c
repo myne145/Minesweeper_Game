@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include "game_stats.h"
 
@@ -87,6 +88,7 @@ player** load_n_best_players_from_stats_file(int* n) {
 
         status = fread(playerName, sizeof(char) * playerNameLength, 1, file);
         if(status != 1) break;
+        playerName[playerNameLength] = '\0';
 
         status = fread(&score, sizeof(double), 1, file);
         if(status != 1 || score < 0) break;
@@ -139,9 +141,26 @@ player** load_n_best_players_from_stats_file(int* n) {
     return result;
 }
 
+void calculate_game_board_time_using_local_time(board* gameBoard) {
+    //zatrzymujemy czas gry odejmując wartość początkową od końcowej
+    struct timeval* currentTime = malloc(sizeof(struct timeval));
+    assert(gettimeofday(currentTime, NULL) == 0 && "Failed to get local time!"); //jeśli nie jest 0 to wtedy nie udało się wczytać czasu lokalnego
+
+    gameBoard->gameTime->tv_sec = currentTime->tv_sec - gameBoard->gameTime->tv_sec;
+    signed long val = currentTime->tv_usec - gameBoard->gameTime->tv_usec;
+
+    if(val < 0) {
+        gameBoard->gameTime->tv_sec--; //zmniejszamy liczbe sekund o 1
+        gameBoard->gameTime->tv_usec = 1000000 + val; //to sa mikrosekundy czyli 10^-6 sekundy to dodajemy milion żeby pozbyć się liczby ujemnej
+    } else {
+        gameBoard->gameTime->tv_usec = val;
+    }
+    free(currentTime);
+}
+
 void print_players_(player** players, int length) {
     for(int i = 0; i < length; i++) {
         player* p = players[i];
-        printf("\t%s\t\t%lf\t\t%zu.%zu\n", p->name, p->score, p->playerGameTime->tv_sec, p->playerGameTime->tv_usec / 1000);
+        printf("\t%s\t\t%lf\t\t%02zu.%zus\n", p->name, p->score, p->playerGameTime->tv_sec, p->playerGameTime->tv_usec / 1000);
     }
 }

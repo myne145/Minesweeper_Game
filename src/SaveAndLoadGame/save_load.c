@@ -3,10 +3,10 @@
 #include <assert.h>
 #include <stdio.h> // Dla fread, fwrite
 #include <stdlib.h>
-#include <sys/time.h>
 #include <string.h>
 
 #include "../Game/game_command.h"
+#include "../GameStats/game_stats.h"
 
 //Funckja zapisująca grę do bliku binarnego wybranego przez gracza
 static void save_game(char* save_name,board* Board){
@@ -110,12 +110,8 @@ void save_with_exit_confirmation(board* gameBoard, char* filename)
         return;
     }
 
-    //Modyfikacja czasu gry - liczymy już tutaj score'a
-    struct timeval* timeval = malloc(sizeof(struct timeval));
-    gettimeofday(timeval, NULL);
-    gameBoard->gameTime->tv_sec = timeval->tv_sec - gameBoard->gameTime->tv_sec;
-    gameBoard->gameTime->tv_usec = timeval->tv_usec - gameBoard->gameTime->tv_usec;
-    free(timeval);
+    //tutaj też już liczymy score'a i zapisujemy potem do pliku
+    calculate_game_board_time_using_local_time(gameBoard);
 
     //wyrzucamy nowa linie z nazwy pliku
     for(int i = 0; i < strlen(filename); i++) {

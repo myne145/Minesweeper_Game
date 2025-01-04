@@ -6,6 +6,7 @@
 #define MINESWEEPER_JIMP1_GAME_STATS_H
 
 #include <stdlib.h>
+#include "src/Board/board.h"
 
 /**
  * Struktura przechowujaca gracza
@@ -43,6 +44,14 @@ player** load_n_best_players_from_stats_file(int* n);
  * @param player1 gracz
  */
 void free_player(player* player1);
+
+
+/**
+ * wylicza czas gry używajac lokalnego czasu
+ * @param gameBoard plansza ktorej czas chcemy wyliczyc
+ */
+void calculate_game_board_time_using_local_time(board* gameBoard);
+
 
 /**
  * Drukuje tablice graczy
