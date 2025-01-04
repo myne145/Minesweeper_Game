@@ -232,11 +232,13 @@ void save_to_leaderboards_with_confirmation(board* gameBoard) {
     }
 
     //wyrzucamy nowa linie z imienia usera
-    for(int i = 0; i < strlen(name); i++) {
-        if(name[i] == '\n') {
-            name[i] = (char) NULL;
+    int nameLength = 0;
+    for(; nameLength < strlen(name); nameLength++) {
+        if(name[nameLength] == '\n') {
+            name[nameLength] = (char) NULL;
         }
     }
+    name[nameLength] = '\0';
 
     player* currentPlayer = create_player(name, gameBoard->score, gameBoard->gameTime);
     free(name);

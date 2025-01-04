@@ -81,9 +81,7 @@ player** load_n_best_players_from_stats_file(int* n) {
         status = fread(&playerNameLength, sizeof(int), 1, file);
         if (status != 1 && playerNameLength <= 0) break;
 
-        if(playerName != NULL) {
-            free(playerName);
-        }
+        free(playerName);
         playerName = malloc(playerNameLength * sizeof(char));
         if(playerName == NULL) break;
 
