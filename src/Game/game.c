@@ -22,6 +22,7 @@ void start_game_from_board(board* gameBoard) {
     //plansza która ma już wszystkie pola odkryte
     board_assert(gameBoard);
 
+    printf("Multiplier: %f\n", gameBoard->multiplier);
     size_t row, col;
     printf("First move[row column]: ");
     assert(scanf("%zu %zu", &row, &col) == 2);
@@ -31,6 +32,8 @@ void start_game_from_board(board* gameBoard) {
 
     //wyciągamy 1 iterację po za pętlę
     size_t* revealedFields = calloc(1, sizeof(size_t));
+    assert(revealedFields != NULL);
+
     gameBoard->P[row][col] = gameBoard->SOLVED[row][col];
     randomize_solution_to_board(gameBoard, row, col);
     show_surrounding_empty_fields(row, col, revealedFields, gameBoard);

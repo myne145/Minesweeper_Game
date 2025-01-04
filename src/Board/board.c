@@ -31,6 +31,10 @@ void board_assert(board* Board){
 
 }
 
+float calculate_multiplier(size_t amountOfFields, size_t amountOfBombs) {
+    size_t difficultyFactor = (amountOfBombs * amountOfBombs) / amountOfFields;
+    return difficultyFactor;
+}
 
 // Funkcja alokująca plansze
 board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
@@ -43,7 +47,7 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
     newBoard->cols = cols;
     newBoard->amountOfBombs = amountOfBombs;
     newBoard->score = 0;
-    newBoard->multiplier = 1; //TODO: poprawne wyliczenie multipliera
+    newBoard->multiplier = calculate_multiplier(rows * cols, amountOfBombs); //TODO: poprawne wyliczenie multipliera
     newBoard->gameTime = malloc(sizeof(struct timeval)); //przypisuje pamiec do struktury z czasem gry
 
     //alokacja wierszy dla obu tablic
