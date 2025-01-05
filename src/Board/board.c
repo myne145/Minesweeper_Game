@@ -5,12 +5,12 @@
 
 #define DEBUG 0
 
-//akceptujemy pola: -4 (?), -3 (F), -2 (*), -1 (-), 0-8 (numerki)
+//akceptujemy pola: -3 (F), -2 (*), -1 (-), 0-8 (numerki)
 void board_content_assert(int** arrayToCheck, const size_t rows, const size_t cols)
 {
     for(size_t i = 0; i < rows; i++){
         for(size_t j = 0; j < cols; j++){
-            assert(arrayToCheck[i][j] >= -4 && arrayToCheck[i][j] <= 8);
+            assert(arrayToCheck[i][j] >= -3 && arrayToCheck[i][j] <= 8);
         }
     }
 }
@@ -137,7 +137,15 @@ void print_board_game(board* Board) {
         }
     }
     printf("\n");
-    printf("Current score: %f\n", Board->score);
+}
+
+void print_board_stats(size_t seed, char* preset, board* gameBoard) {
+    printf("Settings:\n");
+    printf(preset == NULL ? "" : "Preset: %s\n", preset);
+    printf("Dimensions: %zux%zu\n", gameBoard->rows, gameBoard->cols);
+    printf("Bombs: %zu\n", gameBoard->amountOfBombs);
+    printf("Seed: %zu\n", seed);
+    printf("Score multiplier: %f\n", gameBoard->multiplier);
 }
 
 //helper do poprawienia indexu tablicy jeśli wychodzi po za granice

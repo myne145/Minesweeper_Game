@@ -22,9 +22,8 @@ void start_game_from_board(board* gameBoard) {
     //plansza która ma już wszystkie pola odkryte
     board_assert(gameBoard);
 
-    printf("Multiplier: %f\n", gameBoard->multiplier);
     size_t row, col;
-    printf("First move[row column]: ");
+    printf("Enter your first move [row column]: ");
     assert(scanf("%zu %zu", &row, &col) == 2);
     assert(row >= 0 && row < gameBoard->rows && col >= 0 && col < gameBoard->cols);
 
@@ -40,8 +39,6 @@ void start_game_from_board(board* gameBoard) {
     update_score(*revealedFields, gameBoard);
     free(revealedFields);
 
-    print_board_game(gameBoard);
-
     game_loop(gameBoard); //free przeniesione do pętli
 }
 
@@ -56,6 +53,10 @@ void start_game_from_saved_board(board* gameBoard)
     gameBoard->gameTime->tv_sec = timeval->tv_sec - gameBoard->gameTime->tv_sec;
     gameBoard->gameTime->tv_usec = timeval->tv_usec - gameBoard->gameTime->tv_usec;
     free(timeval);
+
+    print_board_game(gameBoard);
+    printf("Your score: %f\n", gameBoard->score);
+    printf("Command (h for help):\t");
 
     game_loop(gameBoard); //free przeniesione do pętli
 }
@@ -112,15 +113,15 @@ static void show_surrounding_empty_fields(size_t row, size_t col, size_t* buffer
             //jeśli pole jest bombą też pomijamy, ale zamiast je odkrywać, pokazujemy userowi że pole jest nieznane
             //warunek 2 i 3 - pole też nie może być flagą, jako że flagi zaznaczamy tylko na planszy użytkownika,
             //sprawdzamy też i ją żeby przypadkiem nie usunąć flagi z planszy
-            if (gameBoard->SOLVED[a][b] == -2 && gameBoard->P[a][b] != -3 && gameBoard->P[a][b] != -4)
+            if (gameBoard->SOLVED[a][b] == -2 && gameBoard->P[a][b] != -3)
             {
                 gameBoard->P[a][b] = -1;
                 continue;
             }
 
             //jeśli pole na planszy użytkownika zostało odkryte to też pomijamy je
-            //również jeśli pole jest flagą lub ? którą uzytkownik postawił to pomijamy
-            if (gameBoard->P[a][b] != - 1 || gameBoard->P[a][b] == -3 || gameBoard->P[a][b] == -4)
+            //również jeśli pole jest flagą którą uzytkownik postawił to pomijamy
+            if (gameBoard->P[a][b] != - 1 || gameBoard->P[a][b] == -3)
             {
                 continue;
             }
@@ -203,7 +204,7 @@ static int is_game_won(board* gameBoard)
         for (int j = 0; j < gameBoard->cols; j++)
         {
             //warunek do flagi
-            if (gameBoard->P[i][j] == -3 || gameBoard->P[i][j] == -4)
+            if (gameBoard->P[i][j] == -3)
             {
                 continue;
             }
@@ -251,14 +252,19 @@ void save_to_leaderboards_with_confirmation(board* gameBoard) {
 
 static void game_loop(board* gameBoard)
 {
-    int gameStatus = 1;
+    int gameStatus;
     int wasGameWon = 0;
-    while (gameStatus)
+    while (1)
     {
         gameStatus = (game_iter(gameBoard) != (wasGameWon = is_game_won(gameBoard)));
-        print_board_game(gameBoard);
-    }
+        if(gameStatus == 0)
+            break;
 
+        print_board_game(gameBoard);
+        printf("Your score: %f\n", gameBoard->score);
+        printf("Command (h for help):\t");
+    }
+    print_board_game(gameBoard);
     //zatrzymujemy czas gry tutaj, bo wyszlismy z petli czyli koniec gry
     calculate_game_board_time_using_local_time(gameBoard);
 
@@ -268,6 +274,7 @@ static void game_loop(board* gameBoard)
     printf("Your stats:\n");
     printf("Score:\t%f\n", gameBoard->score);
     printf("Time:\t%02zu.%zus\n", gameBoard->gameTime->tv_sec, gameBoard->gameTime->tv_usec / 1000);
+    printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
 
     if(wasGameWon) //nawet nie pytamy usera o dodanie wyniku do leaderboardsów jak przegrał
         save_to_leaderboards_with_confirmation(gameBoard);
@@ -303,7 +310,6 @@ static void game_loop(board* gameBoard)
 //zwraca 0 jeśli mamy zwrócić wynik
 int game_iter(board* gameBoard)
 {
-    printf("Command (h for help):\t");
     char* line = NULL;
     size_t size;
 
@@ -320,7 +326,7 @@ int game_iter(board* gameBoard)
 
     //jeśli pierwsza czesc komendy ma wiecej niz 1 znak to jest zła
     //nie ma komend co mają więcej niz 1 znak na starcie, a dzięki temu ifowi switcha można użyć
-    if (strlen(*command) > 1)
+    if (strlen(*command) > 1 && **command != '\n')
     {
         printf("Invalid command!\n");
         return 1;
@@ -378,7 +384,6 @@ int game_iter(board* gameBoard)
             printf("Help:\n"
             "\t• f [row1] [col1] [row2] [col2] ... [rown] [coln]- places a flag in all positions from [row1][col1] - [rown][coln]\n"
             "\t• r [row1] [col1] [row2] [col2] ... [rown] [coln] - reveals all fields in positions [row1][col1] - [rown][coln]\n"
-            "\t• ? [row1] [col1] [row2] [col2] ... [rown] [coln] - marks the fields in positions [row1][col1] - [rown][coln] as \"?\"\n"
             "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
             break;
     }

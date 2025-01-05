@@ -50,4 +50,12 @@ void board_assert(board* Board);
  */
 void randomize_solution_to_board(board* board,size_t firstRow, size_t firstCol);
 
+/**
+ * wypisuje ustawienia gry
+ * @param seed seed z jakim gra została stworzona
+ * @param preset preset gry - jeśli niestandardowy podaj NULL
+ * @param gameBoard plansza
+ */
+void print_board_stats(size_t seed, char* preset, board* gameBoard);
+
 #endif  // BOARD_H

@@ -37,7 +37,7 @@ char** split_command_by_spaces(char* line, int* commandLength) {
     int tempElementIndex = 0;
     for (int i = 0; i < strlen(line); i++)
     {
-        if (line[i] == ' ')
+        if (line[i] == ' ' || line[i] == '\n')
         {
             command[*commandLength][tempElementIndex] = '\0';
             tempElementIndex = 0;
