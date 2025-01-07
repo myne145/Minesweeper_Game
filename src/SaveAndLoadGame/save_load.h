@@ -1,7 +1,7 @@
 #ifndef SAVE_H
 #define SAVE_H
 
-#include "src/Board/board.h"
+#include "../Board/board.h"
 
 /**
  * Funkcja zapisująca grę do pliku binarnego wybranego przez gracza

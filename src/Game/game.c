@@ -10,7 +10,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include "src/SaveAndLoadGame/save_load.h"
+#include "../SaveAndLoadGame/save_load.h"
 #include "game_command.h"
 #include "src/GameStats/game_stats.h"
 
@@ -311,7 +311,7 @@ static void game_loop(board* gameBoard)
 int game_iter(board* gameBoard)
 {
     char* line = NULL;
-    size_t size;
+    size_t size = 0;
 
     //sprawdzamy czy udało się wczytać linie
     if (getline(&line, &size, stdin) == -1)
@@ -385,7 +385,10 @@ int game_iter(board* gameBoard)
             "\t• f [row1] [col1] [row2] [col2] ... [rown] [coln]- places a flag in all positions from [row1][col1] - [rown][coln]\n"
             "\t• r [row1] [col1] [row2] [col2] ... [rown] [coln] - reveals all fields in positions [row1][col1] - [rown][coln]\n"
             "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
+            "\t• q  - quit game without saving\n");
             break;
+        case 'q':
+            exit(EXIT_SUCCESS);
     }
     printf("\n");
     free_command(command, commandLength);
