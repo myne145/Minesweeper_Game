@@ -4,6 +4,8 @@
 #include <stdio.h> // Dla printf
 
 #define DEBUG 0
+#define RESET_COLOR "\e[0m"
+
 
 //akceptujemy pola: -3 (F), -2 (*), -1 (-), 0-8 (numerki)
 void board_content_assert(int** arrayToCheck, const size_t rows, const size_t cols)
