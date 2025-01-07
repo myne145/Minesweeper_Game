@@ -10,7 +10,7 @@
 #include <time.h>
 #include <string.h>
 
-#include "/opt/homebrew/Cellar/raylib/5.5/include/raylib.h"
+#include "Raylib/5.5/include/raylib.h"
 #include "ray_lib.h"
 
 // Funkcja rekurencyjnie odkrywająca komórki wokół komórki o współrzędnych (row, col). Zmienia gameOver na 1 jeśli odkryta komórka zawiera bombę

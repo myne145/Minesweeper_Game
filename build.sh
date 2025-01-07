@@ -1,3 +1,3 @@
 #!/bin/bash
-cc src/Board/*.c src/Game/*.c src/SaveAndLoadGame/*.c  src/RayLibGUI/*.c main.c -o game -lraylib -L/opt/homebrew/lib -I/opt/homebrew/include -framework OpenGL -framework Cocoa -framework IOKit
+cc src/Board/*.c src/Game/*.c src/SaveAndLoadGame/*.c  src/RayLibGUI/*.c main.c -o game -lraylib -L src/RayLibGUI/Raylib/5.5/lib-I/opt/homebrew/include
 ./game

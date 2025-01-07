@@ -4,7 +4,7 @@
 * Autor: Oskar Przybylski
 */
 
-#include <_stdio.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,7 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "/opt/homebrew/Cellar/raylib/5.5/include/raylib.h" // Biblioteka RayLib
+#include "Raylib/5.5/include/raylib.h" // Biblioteka RayLib
 #include "ray.h"                              // Nagłówek gry
 #include "ray_lib.h"                          // Funkcje pomocnicze gry
 
@@ -460,7 +460,7 @@ void gui(void){
             BOMBS = 99;
         }
         clock_t start = clock();
-        Cell board[ROWS][COLS]; 
+        Cell board[ROWS][COLS];
     }
 
     main_game_view();

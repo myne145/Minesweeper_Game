@@ -16,7 +16,7 @@ typedef struct {
 #define CELL_SIZE 40
 
 // Zmienne globalne określające rozmiar planszy
-size_t ROWS; 
+size_t ROWS;
 size_t COLS;
 
 // Liczba bomb na planszy
