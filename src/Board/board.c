@@ -95,7 +95,7 @@ void free_board(board* Board){
 void print_board_game(board* Board) {
     board_assert(Board);
 
-    static char colors[8][10] = {"\e[0;34m", "\e[0;32m",
+    static char colors[8][8] = {"\e[0;34m", "\e[0;32m",
         "\e[0;33m", "\e[0;34m", "\e[0;35m", "\e[0;36m", "\e[1;34m",
     "\e[1;35m"};
 
@@ -154,6 +154,16 @@ void print_board_stats(size_t seed, char* preset, board* gameBoard) {
     printf("Seed: %zu\n", seed);
     printf("Score multiplier: %f\n", gameBoard->multiplier);
 }
+
+void reveal_all_bombs(board* gameBoard) {
+    for(int i = 0; i < gameBoard->rows; i++) {
+        for(int j = 0; j < gameBoard->cols; j++) {
+            //jeśli pole jest bomba na planszy rozwiazania to odkrywamy je na planszy uzytkownika
+            gameBoard->SOLVED[i][j] == -2 ? gameBoard->P[i][j] = -2 : 0;
+        }
+    }
+}
+
 
 //helper do poprawienia indexu tablicy jeśli wychodzi po za granice
 size_t get_valid_bounds(long value, board* board) {

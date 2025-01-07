@@ -264,6 +264,12 @@ static void game_loop(board* gameBoard)
         printf("Your score: %f\n", gameBoard->score);
         printf("Command (h for help):\t");
     }
+
+    //jesli przegralismy to odkrywamy wszystkei bomby na planszy
+    if(wasGameWon == 0) {
+        reveal_all_bombs(gameBoard);
+    }
+
     print_board_game(gameBoard);
     //zatrzymujemy czas gry tutaj, bo wyszlismy z petli czyli koniec gry
     calculate_game_board_time_using_local_time(gameBoard);
