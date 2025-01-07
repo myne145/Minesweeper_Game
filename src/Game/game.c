@@ -384,7 +384,7 @@ int game_iter(board* gameBoard)
             printf("Help:\n"
             "\t• f [row1] [col1] [row2] [col2] ... [rown] [coln]- places a flag in all positions from [row1][col1] - [rown][coln]\n"
             "\t• r [row1] [col1] [row2] [col2] ... [rown] [coln] - reveals all fields in positions [row1][col1] - [rown][coln]\n"
-            "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
+            "\t• s [filename < 50 chars] - saves the current game state to specified file\n"
             "\t• q  - quit game without saving\n");
             break;
         case 'q':
