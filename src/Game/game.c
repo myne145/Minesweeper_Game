@@ -12,7 +12,7 @@
 
 #include "../SaveAndLoadGame/save_load.h"
 #include "game_command.h"
-#include "src/GameStats/game_stats.h"
+#include "../GameStats/game_stats.h"
 
 static int game_iter(board* gameBoard);
 static void game_loop(board* gameBoard);

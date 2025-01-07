@@ -6,7 +6,7 @@
 #define MINESWEEPER_JIMP1_GAME_STATS_H
 
 #include <stdlib.h>
-#include "src/Board/board.h"
+#include "../Board/board.h"
 
 /**
  * Struktura przechowujaca gracza
