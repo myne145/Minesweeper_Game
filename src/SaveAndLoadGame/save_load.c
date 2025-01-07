@@ -1,4 +1,4 @@
-#include "src/Board/board.h"
+#include "../Board/board.h"
 #include "save_load.h"
 #include <assert.h>
 #include <stdio.h> // Dla fread, fwrite
