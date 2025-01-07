@@ -3,7 +3,10 @@
 #include <assert.h>
 #include <stdio.h> // Dla fread, fwrite
 #include <stdlib.h>
-#include <string.h> // dla strcmp
+#include <string.h>
+
+#include "../Game/game_command.h"
+#include "../GameStats/game_stats.h"
 
 //Funckja zapisująca grę do bliku binarnego wybranego przez gracza
 static void save_game(char* save_name,board* Board){
@@ -19,6 +22,17 @@ static void save_game(char* save_name,board* Board){
     ans = fwrite(&Board->cols, sizeof(size_t), 1, file); //zapisać liczbę kolumn
     assert(ans == 1);
     ans = fwrite(&Board->amountOfBombs, sizeof(size_t), 1, file); //zapisać liczbę bomb na planszy
+    assert(ans == 1);
+    ans = fwrite(&Board->score, sizeof(float ), 1, file); //zapisać score'a
+    assert(ans == 1);
+
+    //zapisywanie czasu gry
+    //zapisujemy wartości czasu gry, nie timestamp kiedy gra się zaczęła
+    //po załadowaniu gry, od obecnego timestampa odejmujemy tą wartość (zaczynamy gre w przeszłości)
+    //i potem liczymy już wszystko normalnie
+    ans = fwrite(&Board->gameTime->tv_sec, sizeof(size_t), 1, file); //zapisywanie sekund
+    assert(ans == 1);
+    ans = fwrite(&Board->gameTime->tv_usec, sizeof(size_t), 1, file); //zapisywanie mikrosekund
     assert(ans == 1);
 
     //zapisywanie tablicy użytkownika
@@ -53,11 +67,21 @@ board* load_game(char* save_name){
     assert(ans == 1 && rows > 0); // sprawdzamy czy operacja się powiodła
     ans = fread(&cols, sizeof(size_t), 1, file); // wczytuje liczbę kolumn
     assert(ans == 1 && cols > 0); // sprawdzamy czy operacja się powiodła
-    ans = fread(&amountOfBombs, sizeof(size_t), 1, file); // wczytuje liczbę kolumn
-    assert(ans == 1 && cols > 0); // sprawdzamy czy operacja się powiodła
+    ans = fread(&amountOfBombs, sizeof(size_t), 1, file); // wczytuje liczbę bomb
+    assert(ans == 1 && amountOfBombs >= 0); // sprawdzamy czy operacja się powiodła
 
     board* Board = make_board(rows, cols, amountOfBombs); // Tworzymy nową planszę
     board_assert(Board); // Sprawdzamy poprawność planszy
+
+    ans = fread(&Board->score, sizeof(float), 1, file); // wczytuje score'a
+    assert(ans == 1 && Board->score >= 0); // sprawdzamy czy operacja się powiodła
+
+    //ładowanie czasu gry
+    ans = fread(&Board->gameTime->tv_sec, sizeof(size_t), 1, file); //wczytywanie sekund
+    assert(ans == 1); // sprawdzamy czy operacja się powiodła
+    ans = fread(&Board->gameTime->tv_usec, sizeof(size_t), 1, file); //wczytywanie sekund
+    assert(ans == 1); // sprawdzamy czy operacja się powiodła
+
     //wczytywanie tablicy użytkownika
     for (size_t i = 0; i < Board->rows; i++) {
         for (size_t j = 0; j < Board->cols; j++){
@@ -85,12 +109,21 @@ void save_with_exit_confirmation(board* gameBoard, char* filename)
         fprintf(stderr, "Invalid filename\n");
         return;
     }
+
+    //tutaj też już liczymy score'a i zapisujemy potem do pliku
+    calculate_game_board_time_using_local_time(gameBoard);
+
+    //wyrzucamy nowa linie z nazwy pliku
+    for(int i = 0; i < strlen(filename); i++) {
+        if(filename[i] == '\n') {
+            filename[i] = (char) NULL;
+        }
+    }
+
     save_game(filename, gameBoard);
     printf("Succesfully saved the game to file %s", filename);
-    printf("Do you want to quit? (y/N)\n");
-    char c = fgetc(stdin);
-    if (c == 'y' || c == 'Y')
-    {
+    int status = show_yes_no_input_field("Do you want to quit?", 0);
+    if(status == 1) {
         exit(0);
     }
 }

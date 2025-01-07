@@ -5,12 +5,12 @@
 
 #define DEBUG 0
 
-//akceptujemy pola: -4 (?), -3 (F), -2 (*), -1 (-), 0-8 (numerki)
+//akceptujemy pola: -3 (F), -2 (*), -1 (-), 0-8 (numerki)
 void board_content_assert(int** arrayToCheck, const size_t rows, const size_t cols)
 {
     for(size_t i = 0; i < rows; i++){
         for(size_t j = 0; j < cols; j++){
-            assert(arrayToCheck[i][j] >= -4 && arrayToCheck[i][j] <= 8);
+            assert(arrayToCheck[i][j] >= -3 && arrayToCheck[i][j] <= 8);
         }
     }
 }
@@ -31,6 +31,10 @@ void board_assert(board* Board){
 
 }
 
+float calculate_multiplier(size_t amountOfFields, size_t amountOfBombs) {
+    size_t difficultyFactor = (amountOfBombs * amountOfBombs) / amountOfFields;
+    return difficultyFactor;
+}
 
 // Funkcja alokująca plansze
 board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
@@ -42,6 +46,9 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs) {
     newBoard->rows = rows;
     newBoard->cols = cols;
     newBoard->amountOfBombs = amountOfBombs;
+    newBoard->score = 0;
+    newBoard->multiplier = calculate_multiplier(rows * cols, amountOfBombs); //TODO: poprawne wyliczenie multipliera
+    newBoard->gameTime = malloc(sizeof(struct timeval)); //przypisuje pamiec do struktury z czasem gry
 
     //alokacja wierszy dla obu tablic
     newBoard->P = (int**)malloc(rows * sizeof(int*));
@@ -78,12 +85,12 @@ void free_board(board* Board){
     }
     free(Board->P); // zwalniamy wiersze
     free(Board->SOLVED); // zwalniamy wiersze
+    free(Board->gameTime);
     free(Board);    // zwalniamy całą plansze
 }
 
 //Funkcja pokazująca board
-void print_board_game(board* Board){
-    //system("clear");
+void print_board_game(board* Board) {
     board_assert(Board);
     for(size_t i = 0; i < Board->rows; i++){
         if( i <= 9){ // jeśli i jest jednocyfrowe to dodajemy spacje
@@ -91,7 +98,7 @@ void print_board_game(board* Board){
         }
         printf("%zu. |",i);       // numer wiersza
         for(size_t j = 0; j < Board->cols; j++){
-            int val = Board->P[i][j]; // wartość pola
+            int val = DEBUG == 0 ? Board->P[i][j] : Board->SOLVED[i][j]; // wartość pola
             switch(val){
                 case -1:
                     printf(DEBUG == 0 ? " - |" : "-1 |");  // -1 to znacznik nieznanego pola
@@ -109,7 +116,7 @@ void print_board_game(board* Board){
                     if(val >= 1 && val <= 8){
                         printf(" %d |",val); // liczby od 1 do 8 to znaczniki ilości min w sąsiedztwie
                     }else{
-                        printf(" ? "); // inna wartość to znacznik błędu
+                        printf(DEBUG == 0 ? " ? " : " %d ", val); // inna wartość to znacznik błędu
                     }
                     break;
             }
@@ -132,8 +139,17 @@ void print_board_game(board* Board){
     printf("\n");
 }
 
+void print_board_stats(size_t seed, char* preset, board* gameBoard) {
+    printf("Settings:\n");
+    printf(preset == NULL ? "" : "Preset: %s\n", preset);
+    printf("Dimensions: %zux%zu\n", gameBoard->rows, gameBoard->cols);
+    printf("Bombs: %zu\n", gameBoard->amountOfBombs);
+    printf("Seed: %zu\n", seed);
+    printf("Score multiplier: %f\n", gameBoard->multiplier);
+}
+
 //helper do poprawienia indexu tablicy jeśli wychodzi po za granice
-size_t get_valid_bounds(size_t value, board* board) {
+size_t get_valid_bounds(long value, board* board) {
     if(value - 1 < 0) {
         value = 0;
     }
@@ -144,22 +160,38 @@ size_t get_valid_bounds(size_t value, board* board) {
 }
 
 //helper do zliczenia bomb w części planszy
+//start row, start col, end row, end col, board
 int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size_t endCol, board* board) {
     int bombCtr = 0;
-    size_t tempB = startCol;
-    while(startRow <= endRow) {
-        while(startCol <= endCol) {
-
-            //sprawdzanie czy pole jest bombą i inkrementowanie licznika jak jest
-            if(board->SOLVED[startRow][startCol] == -2) {
+    for(size_t i = startRow; i <= endRow; i++) {
+        for(size_t j = startCol; j <= endCol; j++) {
+            if(board->SOLVED[i][j] == -2) {
                 bombCtr++;
             }
-            startCol++;
         }
-        startCol = tempB;
-        startRow++;
     }
     return bombCtr;
+}
+
+//a,b - TESTOWANY rząd i kolumna którą sprawdzamy czy jest index w okolicy
+//row, col - rząd i kolumna który sprawdzamy czy jest w okolicy a, b
+int is_index_next_to_field(size_t a, size_t b, size_t row, size_t col, board* gameBoard) {
+    //granice w których szukamy pola
+    size_t startRow = get_valid_bounds(a - 1, gameBoard);
+    size_t startCol = get_valid_bounds(b - 1, gameBoard);
+    size_t endRow = get_valid_bounds(a + 1, gameBoard);
+    size_t endCol = get_valid_bounds(b + 1, gameBoard);
+
+    //w obrębie pola (a, b) sprawdzamy czy nie znajduje się pole (row, col)
+    for(size_t i = startRow; i <= endRow; i++) {
+        for(size_t j = startCol; j <= endCol; j++) {
+            if(i == row && j == col) { //jeśli jest to pole to zwracamy 1
+                return 1;
+            }
+        }
+    }
+    //jak nie ma to zwracamy 0
+    return 0;
 }
 
 /*
@@ -169,42 +201,48 @@ int get_bomb_count_in_area(size_t startRow, size_t startCol, size_t endRow, size
  * 1-8 = ilosc bomb
  */
 //funkcja dodająca numerki i bomby do planszy
-/*
- *TODO: (notatka dla siebie, nie chce nikogo do roboty zaganiać)
- * poprawić generowanie pola w indexie (firstRow, firstCol) aby mógł generować tam tylko "0"
- * przypisanie na twardo do tego pola zmiennej 0 powoduje że bomby pojawiaja się bez numerku obok
- * na tą chwilę numerki mogą się w tym polu generować
- * przetestować można dla seedu 1735042975 i pola startowego (1,1)
-*/
 void randomize_solution_to_board(board* board, size_t firstRow, size_t firstCol) {
     board_assert(board);
 
-    //pole od którego zaczynamy zawsze jest puste
-    // board->SOLVED[firstRow][firstCol] = 0;
-
-    //TODO dodać jakieś warunki żeby bomb nie było za mało i gra nie była za łatwa po za tymi koniecznymi
     if(board->amountOfBombs >= board->rows * board->cols || board->amountOfBombs < 0) {
         fprintf(stderr, "Invalid amount of bombs\n");
         exit(-1);
     }
 
+    //licznik iteracji do tworzenia bomb
+    size_t iterCounter = 0;
+
     //dodawanie bomb
     int bombIter = 0;
     while(bombIter < board->amountOfBombs) {
-        size_t row = rand() % board->rows;
-        size_t col = rand() % board->cols;
+        iterCounter++;
+
+        //warunek jeśli plansza jest nieprawidłowa - jeśli ilosc iteracji > (ilośc pól na planszy)^2 to plansza jest zła
+        //wtedy to oznacza ze nie możemy znaleźć odpowiedniego miejsca na postawienia bomby na planszy
+        //troszke arbitralnie postawiona granica, ale nie widze lepszej opcji
+        if(iterCounter > (board->rows * board->cols) * (board->rows * board->cols)) {
+            printf("Invalid board!\n");
+            exit(-1);
+        }
+
+        size_t bombRow = rand() % board->rows;
+        size_t bombCol = rand() % board->cols;
+
+
 
         //jeśli wylosowaliśmy index gdzie jest już bomba to pomijamy
-        if(board->SOLVED[row][col] == -2) {
+        if(board->SOLVED[bombRow][bombCol] == -2) {
             continue;
         }
 
-        //jeśli wylosowaliśmy index gdzie jest pierwsze pole to pomijamy
-        if(row == firstRow && col == firstCol) {
+        //jeśli w wylosowane pole z bombą sądiaduje z pierwszym indexem to pomijamy
+        //w minesweeperze jak sie zrobi 1 ruch to startowe pole zawsze jest puste
+        //dzieki temu w okolicy 1 pola nie ma bomb = nie ma numerkow = pole jest puste
+        if(is_index_next_to_field(firstRow, firstCol, bombRow, bombCol, board)) {
             continue;
         }
 
-        board->SOLVED[row][col] = -2;
+        board->SOLVED[bombRow][bombCol] = -2;
 
         bombIter++;
     }
@@ -216,11 +254,6 @@ void randomize_solution_to_board(board* board, size_t firstRow, size_t firstCol)
             if(board->SOLVED[i][j] == -2) {
                 continue;
             }
-
-            //jeśli wylosowaliśmy index gdzie jest pierwsze pole to pomijamy
-            // if(i == firstRow && j == firstCol) {
-            //     continue;
-            // }
 
             //czy jak sprawdzamy ilość bomb w promieniu 1 to czy nie wyjdziemy po za granice tablicy
             size_t startRow = get_valid_bounds(i - 1, board);
