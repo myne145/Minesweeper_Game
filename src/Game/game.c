@@ -290,7 +290,7 @@ static void game_loop(board* gameBoard)
 
     printf("%d Best players:\n", amountOfPlayersToPrint);
     printf("\tName\t\tScore\t\tTime\n");
-    print_players_(players, amountOfPlayersToPrint);
+    print_players(players, amountOfPlayersToPrint);
     for(int i = 0; i < amountOfPlayersToPrint; i++)
         free_player(players[i]);
     free(players);

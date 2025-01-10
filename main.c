@@ -8,6 +8,7 @@
 #include "src/Board/board.h"
 #include "src/SaveAndLoadGame/save_load.h"
 #include "src/Game/game.h"
+#include "src/GameStats/game_stats.h"
 
 void set_values_from_preset(char* preset, size_t* rows, size_t* cols, size_t* bombs)
 {
@@ -39,7 +40,7 @@ void set_values_from_preset(char* preset, size_t* rows, size_t* cols, size_t* bo
 
 int main(int argc, char** argv) {
     int option;
-    while((option = getopt(argc, argv, "l:m:hp:")) != -1) {
+    while((option = getopt(argc, argv, "l:m:hp:s:")) != -1) {
         size_t rows, cols, bombs;
         size_t seed = time(NULL);
         srand(seed);
@@ -83,6 +84,16 @@ int main(int argc, char** argv) {
                 start_game_from_board(gameBoard);
                 break;
 
+            case 's':
+                int amountOfPlayersToShow = atoi(optarg);
+                assert(amountOfPlayersToShow > 0);
+                player** players = load_n_best_players_from_stats_file(&amountOfPlayersToShow);
+                printf("%d best players:\n", amountOfPlayersToShow);
+                print_players(players, amountOfPlayersToShow);
+                for(int i = 0; i < amountOfPlayersToShow; i++)
+                    free_player(players[i]);
+                free(players);
+                break;
             case 'h':
                 printf("Help\n");
                 break;
