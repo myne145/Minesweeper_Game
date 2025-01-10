@@ -24,6 +24,7 @@ player* create_player(char* name, double score, struct timeval* gameTime) {
     newPlayer->score = score;
 
     newPlayer->playerGameTime = malloc(sizeof(struct timeval));
+    assert(newPlayer->playerGameTime != NULL);
     newPlayer->playerGameTime->tv_sec = gameTime->tv_sec;
     newPlayer->playerGameTime->tv_usec = gameTime->tv_usec;
 

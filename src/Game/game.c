@@ -306,8 +306,13 @@ static void game_loop(board* gameBoard)
     srand(seed);
     board* newGameBoard = make_board(gameBoard->rows, gameBoard->cols, gameBoard->amountOfBombs);
     free_board(gameBoard);
-    printf("Retrying with size %zux%zu and %zu bombs.\nSeed: %zu\n",
-           newGameBoard->rows, newGameBoard->cols, newGameBoard->amountOfBombs, seed);
+
+    printf("-=-=-=-=-=-=-=-=-=-=-=-=-=Retrying-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
+    print_board_stats(seed, NULL, gameBoard);
+    printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
+
+    // printf("Retrying with size %zux%zu and %zu bombs.\nSeed: %zu\n",
+    //        newGameBoard->rows, newGameBoard->cols, newGameBoard->amountOfBombs, seed);
     start_game_from_board(newGameBoard);
 
 }
