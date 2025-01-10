@@ -94,12 +94,16 @@ int main(int argc, char** argv) {
                     free_player(players[i]);
                 free(players);
                 break;
-            case 'h':
-                printf("Help\n");
-                break;
-
+            //default zawsze nad helpem musi zostać bo inaczej się zepsuje wszystko
             default:
-                printf("Unknown option: %c\n", optopt);
+                printf("Invalid option!\n"); //tu nie ma breaka bo chcemy pójść do printowania wiadomości z helpem
+            case 'h' :
+                printf("Help:\n");
+                printf("\t• -m [row]x[col]x[bombs] - creates a game with specified settings\n");
+                printf("\t• -p [easy | medium | hard] - creates a game with a preset\n");
+                printf("\t• -l [file] - loads a game from file\n");
+                printf("\t• -s [number] - prints number best players from statistics file\n");
+                printf("\t• -h - prints this message\n");
                 break;
         }
     }
