@@ -1,4 +1,4 @@
-#include "src/Board/board.h"
+#include "../Board/board.h"
 #include "save_load.h"
 #include <assert.h>
 #include <stdio.h> // Dla fread, fwrite
@@ -104,7 +104,7 @@ board* load_game(char* save_name){
 
 void save_with_exit_confirmation(board* gameBoard, char* filename)
 {
-    if (filename == NULL || filename == "")
+    if (filename == NULL || strcmp(filename,"")==0)
     {
         fprintf(stderr, "Invalid filename\n");
         return;

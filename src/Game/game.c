@@ -10,9 +10,9 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include "src/SaveAndLoadGame/save_load.h"
+#include "../SaveAndLoadGame/save_load.h"
 #include "game_command.h"
-#include "src/GameStats/game_stats.h"
+#include "../GameStats/game_stats.h"
 
 static int game_iter(board* gameBoard);
 static void game_loop(board* gameBoard);
@@ -264,6 +264,12 @@ static void game_loop(board* gameBoard)
         printf("Your score: %f\n", gameBoard->score);
         printf("Command (h for help):\t");
     }
+
+    //jesli przegralismy to odkrywamy wszystkei bomby na planszy
+    if(wasGameWon == 0) {
+        reveal_all_bombs(gameBoard);
+    }
+
     print_board_game(gameBoard);
     //zatrzymujemy czas gry tutaj, bo wyszlismy z petli czyli koniec gry
     calculate_game_board_time_using_local_time(gameBoard);
@@ -284,7 +290,7 @@ static void game_loop(board* gameBoard)
 
     printf("%d Best players:\n", amountOfPlayersToPrint);
     printf("\tName\t\tScore\t\tTime\n");
-    print_players_(players, amountOfPlayersToPrint);
+    print_players(players, amountOfPlayersToPrint);
     for(int i = 0; i < amountOfPlayersToPrint; i++)
         free_player(players[i]);
     free(players);
@@ -300,8 +306,13 @@ static void game_loop(board* gameBoard)
     srand(seed);
     board* newGameBoard = make_board(gameBoard->rows, gameBoard->cols, gameBoard->amountOfBombs);
     free_board(gameBoard);
-    printf("Retrying with size %zux%zu and %zu bombs.\nSeed: %zu\n",
-           newGameBoard->rows, newGameBoard->cols, newGameBoard->amountOfBombs, seed);
+
+    printf("-=-=-=-=-=-=-=-=-=-=-=-=-=Retrying-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
+    print_board_stats(seed, NULL, gameBoard);
+    printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
+
+    // printf("Retrying with size %zux%zu and %zu bombs.\nSeed: %zu\n",
+    //        newGameBoard->rows, newGameBoard->cols, newGameBoard->amountOfBombs, seed);
     start_game_from_board(newGameBoard);
 
 }
@@ -311,7 +322,7 @@ static void game_loop(board* gameBoard)
 int game_iter(board* gameBoard)
 {
     char* line = NULL;
-    size_t size;
+    size_t size = 0;
 
     //sprawdzamy czy udało się wczytać linie
     if (getline(&line, &size, stdin) == -1)
@@ -384,8 +395,11 @@ int game_iter(board* gameBoard)
             printf("Help:\n"
             "\t• f [row1] [col1] [row2] [col2] ... [rown] [coln]- places a flag in all positions from [row1][col1] - [rown][coln]\n"
             "\t• r [row1] [col1] [row2] [col2] ... [rown] [coln] - reveals all fields in positions [row1][col1] - [rown][coln]\n"
-            "\t• s [filename < 50 chars] - saves the current game state to specified file\n");
+            "\t• s [filename < 50 chars] - saves the current game state to specified file\n"
+            "\t• q  - quit game without saving\n");
             break;
+        case 'q':
+            exit(EXIT_SUCCESS);
     }
     printf("\n");
     free_command(command, commandLength);

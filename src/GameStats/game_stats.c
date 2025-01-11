@@ -24,6 +24,7 @@ player* create_player(char* name, double score, struct timeval* gameTime) {
     newPlayer->score = score;
 
     newPlayer->playerGameTime = malloc(sizeof(struct timeval));
+    assert(newPlayer->playerGameTime != NULL);
     newPlayer->playerGameTime->tv_sec = gameTime->tv_sec;
     newPlayer->playerGameTime->tv_usec = gameTime->tv_usec;
 
@@ -158,7 +159,7 @@ void calculate_game_board_time_using_local_time(board* gameBoard) {
     free(currentTime);
 }
 
-void print_players_(player** players, int length) {
+void print_players(player** players, int length) {
     for(int i = 0; i < length; i++) {
         player* p = players[i];
         printf("\t%s\t\t%lf\t\t%02zu.%zus\n", p->name, p->score, p->playerGameTime->tv_sec, p->playerGameTime->tv_usec / 1000);

@@ -3,9 +3,11 @@
 //
 
 #include <assert.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 #include "game_command.h"
+
+#include <stdio.h>
 
 int show_yes_no_input_field(char* text, int defaultYes) {
     if(defaultYes != 1 && defaultYes != 0)

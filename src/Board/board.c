@@ -4,6 +4,8 @@
 #include <stdio.h> // Dla printf
 
 #define DEBUG 0
+#define RESET_COLOR "\e[0m"
+
 
 //akceptujemy pola: -3 (F), -2 (*), -1 (-), 0-8 (numerki)
 void board_content_assert(int** arrayToCheck, const size_t rows, const size_t cols)
@@ -92,6 +94,11 @@ void free_board(board* Board){
 //Funkcja pokazująca board
 void print_board_game(board* Board) {
     board_assert(Board);
+
+    static char colors[8][8] = {"\e[0;34m", "\e[0;32m",
+        "\e[0;33m", "\e[0;34m", "\e[0;35m", "\e[0;36m", "\e[1;34m",
+    "\e[1;35m"};
+
     for(size_t i = 0; i < Board->rows; i++){
         if( i <= 9){ // jeśli i jest jednocyfrowe to dodajemy spacje
             printf(" ");
@@ -107,14 +114,14 @@ void print_board_game(board* Board) {
                     printf(DEBUG == 0 ? "   |" : " 0 |");  // 0 to znane puste pole
                     break;
                 case -2:
-                    printf(DEBUG == 0 ? " * |" : "-2 |"); // -2 to znacznik miny
+                    printf(DEBUG == 0 ? "\e[1;31m * \e[0m|" : "-2 |"); // -2 to znacznik miny
                     break;
                 case -3:
-                    printf(DEBUG == 0 ? " F |" : "-3 |"); // -3 to znacznik flagi
+                    printf(DEBUG == 0 ? "\e[1;95m F \e[0m|" : "-3 |"); // -3 to znacznik flagi
                     break;
                 default:
                     if(val >= 1 && val <= 8){
-                        printf(" %d |",val); // liczby od 1 do 8 to znaczniki ilości min w sąsiedztwie
+                        printf("%s %d %s|", colors[val - 1], val, RESET_COLOR); // liczby od 1 do 8 to znaczniki ilości min w sąsiedztwie
                     }else{
                         printf(DEBUG == 0 ? " ? " : " %d ", val); // inna wartość to znacznik błędu
                     }
@@ -146,6 +153,16 @@ void print_board_stats(size_t seed, board* gameBoard) {
     printf("Seed: %zu\n", seed);
     printf("Score multiplier: %f\n", gameBoard->multiplier);
 }
+
+void reveal_all_bombs(board* gameBoard) {
+    for(int i = 0; i < gameBoard->rows; i++) {
+        for(int j = 0; j < gameBoard->cols; j++) {
+            //jeśli pole jest bomba na planszy rozwiazania to odkrywamy je na planszy uzytkownika
+            gameBoard->SOLVED[i][j] == -2 ? gameBoard->P[i][j] = -2 : 0;
+        }
+    }
+}
+
 
 //helper do poprawienia indexu tablicy jeśli wychodzi po za granice
 size_t get_valid_bounds(long value, board* board) {

@@ -58,4 +58,10 @@ void randomize_solution_to_board(board* board,size_t firstRow, size_t firstCol);
  */
 void print_board_stats(size_t seed, board* gameBoard);
 
+/**
+ * odkrywa wszystkie bomby na planszy
+ * @param gameBoard plansza
+ */
+void reveal_all_bombs(board* gameBoard);
+
 #endif  // BOARD_H

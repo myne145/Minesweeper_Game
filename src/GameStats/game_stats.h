@@ -6,7 +6,7 @@
 #define MINESWEEPER_JIMP1_GAME_STATS_H
 
 #include <stdlib.h>
-#include "src/Board/board.h"
+#include "../Board/board.h"
 
 /**
  * Struktura przechowujaca gracza
@@ -58,7 +58,7 @@ void calculate_game_board_time_using_local_time(board* gameBoard);
  * @param players tablica graczy
  * @param length długość tablicy graczy
  */
-void print_players_(player** players, int length);
+void print_players(player** players, int length);
 
 
 #endif //MINESWEEPER_JIMP1_GAME_STATS_H

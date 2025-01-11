@@ -7,6 +7,7 @@
 
 #include "src/Board/board.h"
 #include "src/Game/game.h"
+#include "src/GameStats/game_stats.h"
 
 void set_values_from_preset(int preset, size_t* rows, size_t* cols, size_t* bombs)
 {
@@ -36,11 +37,16 @@ int main(int argc, char** argv) {
     srand(seed);
     board* gameBoard;
 
-    option = 'a';
+
     if(option == 'l') {
         //level load logic
-    } else if(option == 'h') {
-        //help logic
+    } else if(option == 'h') { //TODO
+        printf("Help:\n");
+        printf("\t• -m [row]x[col]x[bombs] - creates a game with specified settings\n");
+        printf("\t• -p [easy | medium | hard] - creates a game with a preset\n");
+        printf("\t• -l [file] - loads a game from file\n");
+        printf("\t• -s [number] - prints number best players from statistics file\n");
+        printf("\t• -h - prints this message\n");
     }
 
     printf("-=-=-=-=-=-=-=-=-=-Select game difficulty-=-=-=-=-=-=-=-=-=-\n");
@@ -74,49 +80,59 @@ int main(int argc, char** argv) {
 
     start_game_from_board(gameBoard);
 
-
 //    switch (option) {
 //        case 'l':
 //            gameBoard = load_game(optarg);
-//
+
 //            printf("-=-=-=-=-=-=-=-=-=Loading a game from file-=-=-=-=-=-=-=-=-=-\n");
 //            printf("Filename: %s\n", optarg);
 //            printf("Game score: %f\n\n", gameBoard->score);
 //            print_board_stats(seed, NULL, gameBoard);
 //            printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
-//
+
 //            start_game_from_saved_board(gameBoard);
 //            break;
 
 //        case 'm':
 //            sscanf(optarg, "%zux%zux%zu", &rows, &cols, &bombs);
 //            gameBoard = make_board(rows, cols, bombs);
-//
+
 //            printf("-=-=-=-=-=-=-=-=-=-=-=-Creating a game-=-=-=-=-=-=-=-=-=-=-=-\n");
 //            print_board_stats(seed, NULL, gameBoard);
 //            printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
-//
+
 //            start_game_from_board(gameBoard);
 //            break;
-//
+
 //        case 'p':
 //            char* preset = malloc(6 * sizeof(char)); //easy, medium, hard
 //            sscanf(optarg, "%s", preset);
 //            set_values_from_preset(preset, &rows, &cols, &bombs);
 //            gameBoard = make_board(rows, cols, bombs);
-//
+
 //            printf("-=-=-=-=-=-=-=-=-=-=-=-Creating a game-=-=-=-=-=-=-=-=-=-=-=-\n");
 //            print_board_stats(seed, preset, gameBoard);
 //            printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
-//
+
 //            free(preset);
 //            start_game_from_board(gameBoard);
 //            break;
-//
+
+//        case 's':
+//                 int amountOfPlayersToShow = atoi(optarg);
+//                 assert(amountOfPlayersToShow > 0);
+//                 player** players = load_n_best_players_from_stats_file(&amountOfPlayersToShow);
+//                 printf("%d best players:\n", amountOfPlayersToShow);
+//                 print_players(players, amountOfPlayersToShow);
+//                 for(int i = 0; i < amountOfPlayersToShow; i++)
+//                     free_player(players[i]);
+//                 free(players);
+//                 break;
+       
 //        case 'h':
-//            printf("Help\n");
+//            printf("Invalid option!\n");
 //            break;
-//
+
 //        default:
 //            printf("Unknown option: %c\n", optopt);
 //            break;
