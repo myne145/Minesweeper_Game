@@ -308,7 +308,7 @@ static void game_loop(board* gameBoard)
     free_board(gameBoard);
 
     printf("-=-=-=-=-=-=-=-=-=-=-=-=-=Retrying-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
-    print_board_stats(seed, NULL, gameBoard);
+    print_board_stats(seed, gameBoard);
     printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
 
     // printf("Retrying with size %zux%zu and %zu bombs.\nSeed: %zu\n",
