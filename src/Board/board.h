@@ -56,7 +56,7 @@ void randomize_solution_to_board(board* board,size_t firstRow, size_t firstCol);
  * @param preset preset gry - jeśli niestandardowy podaj NULL
  * @param gameBoard plansza
  */
-void print_board_stats(size_t seed, char* preset, board* gameBoard);
+void print_board_stats(size_t seed, board* gameBoard);
 
 /**
  * odkrywa wszystkie bomby na planszy

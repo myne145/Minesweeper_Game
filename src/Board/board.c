@@ -146,9 +146,8 @@ void print_board_game(board* Board) {
     printf("\n");
 }
 
-void print_board_stats(size_t seed, char* preset, board* gameBoard) {
+void print_board_stats(size_t seed, board* gameBoard) {
     printf("Settings:\n");
-    printf(preset == NULL ? "" : "Preset: %s\n", preset);
     printf("Dimensions: %zux%zu\n", gameBoard->rows, gameBoard->cols);
     printf("Bombs: %zu\n", gameBoard->amountOfBombs);
     printf("Seed: %zu\n", seed);
