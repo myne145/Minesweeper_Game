@@ -204,7 +204,8 @@ static int is_game_won(board* gameBoard)
         for (int j = 0; j < gameBoard->cols; j++)
         {
             //warunek do flagi
-            if (gameBoard->P[i][j] == -3)
+            //sprawdzamy czy wszystkie flagi na planszy usera sa tylko w miejscach gdzie w rozwiązaniu są bomby
+            if (gameBoard->P[i][j] == -3 && gameBoard->SOLVED[i][j] == -2)
             {
                 continue;
             }
