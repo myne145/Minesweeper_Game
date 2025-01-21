@@ -6,9 +6,9 @@
 /**
  * Funkcja zapisująca grę do pliku binarnego wybranego przez gracza
  * @param save_name - nazwa pliku do zapisu
- * @param Board - wskaźnik na planszę
+ * @param gameBoard - wskaźnik na planszę
  */
-static void save_game(char* save_name, board* Board);
+static void save_game(char* save_name, board* gameBoard);
 
 /**
  * Funkcja wczytująca grę z pliku binarnego wybranego przez gracza

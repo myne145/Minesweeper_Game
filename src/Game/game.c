@@ -65,6 +65,7 @@ void update_score(size_t amountOfRevealedFields, board* gameBoard) {
     gameBoard->score += amountOfRevealedFields * gameBoard->multiplier;
 }
 
+//tą funkcję napewno da się zoptymalizować
 static void show_surrounding_empty_fields(size_t row, size_t col, size_t* buffer, board* gameBoard) {
     //szukamy pól które musimy rekurencyjnie przeszukać
     //wybieramy obszar 3x3 chyba że jesteśmy na granicy tablicy wtedy zmneijszamy granice aby uniknac segfaulta

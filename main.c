@@ -96,6 +96,7 @@ int main(int argc, char** argv) {
         scanf("%zu %zu %zu", &rows, &cols, &bombs);
     }
     gameBoard = make_board(rows, cols, bombs);
+    board_assert(gameBoard);
     print_board_stats(seed, gameBoard);
     printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
     start_game_from_board(gameBoard);

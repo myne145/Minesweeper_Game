@@ -9,44 +9,44 @@
 #include "../GameStats/game_stats.h"
 
 //Funckja zapisująca grę do bliku binarnego wybranego przez gracza
-static void save_game(char* save_name,board* Board){
+static void save_game(char* save_name,board* gameBoard){
     assert(save_name != NULL); // Sprawdzamy czy nazwa nie jest pusta
-    board_assert(Board);        // Sprawdzamy poprawność planszy
+    board_assert(gameBoard);        // Sprawdzamy poprawność planszy
     FILE *file = fopen(save_name, "wb"); // Otwieramy plik do zapisu binarnego
     assert(file != NULL); //sprawdzamy czy udało się otworzyć plik
 
     int ans; // zmienna pomocnicza do sprawdzania czy operacja się powiodła
 
-    ans = fwrite(&Board->rows, sizeof(size_t), 1, file); //zapisać liczbę wierszy
+    ans = fwrite(&gameBoard->rows, sizeof(size_t), 1, file); //zapisać liczbę wierszy
     assert(ans == 1); // sprawdzamy czy operacja się powiodła
-    ans = fwrite(&Board->cols, sizeof(size_t), 1, file); //zapisać liczbę kolumn
+    ans = fwrite(&gameBoard->cols, sizeof(size_t), 1, file); //zapisać liczbę kolumn
     assert(ans == 1);
-    ans = fwrite(&Board->amountOfBombs, sizeof(size_t), 1, file); //zapisać liczbę bomb na planszy
+    ans = fwrite(&gameBoard->amountOfBombs, sizeof(size_t), 1, file); //zapisać liczbę bomb na planszy
     assert(ans == 1);
-    ans = fwrite(&Board->score, sizeof(float ), 1, file); //zapisać score'a
+    ans = fwrite(&gameBoard->score, sizeof(float ), 1, file); //zapisać score'a
     assert(ans == 1);
 
     //zapisywanie czasu gry
     //zapisujemy wartości czasu gry, nie timestamp kiedy gra się zaczęła
     //po załadowaniu gry, od obecnego timestampa odejmujemy tą wartość (zaczynamy gre w przeszłości)
     //i potem liczymy już wszystko normalnie
-    ans = fwrite(&Board->gameTime->tv_sec, sizeof(size_t), 1, file); //zapisywanie sekund
+    ans = fwrite(&gameBoard->gameTime->tv_sec, sizeof(size_t), 1, file); //zapisywanie sekund
     assert(ans == 1);
-    ans = fwrite(&Board->gameTime->tv_usec, sizeof(size_t), 1, file); //zapisywanie mikrosekund
+    ans = fwrite(&gameBoard->gameTime->tv_usec, sizeof(size_t), 1, file); //zapisywanie mikrosekund
     assert(ans == 1);
 
     //zapisywanie tablicy użytkownika
-    for (size_t i = 0; i < Board->rows; i++) {
-        for (size_t j = 0; j < Board->cols; j++){
-            ans = fwrite(&(Board->P[i][j]), sizeof(int), 1, file); // zapisać wartość pola
+    for (size_t i = 0; i < gameBoard->rows; i++) {
+        for (size_t j = 0; j < gameBoard->cols; j++){
+            ans = fwrite(&(gameBoard->P[i][j]), sizeof(int), 1, file); // zapisać wartość pola
             assert(ans == 1);
         }
     }
 
     //zapisywanie tablicy z rozwiązaniem
-    for (size_t i = 0; i < Board->rows; i++) {
-        for (size_t j = 0; j < Board->cols; j++){
-            ans = fwrite(&(Board->SOLVED[i][j]), sizeof(int), 1, file); // zapisać wartość pola
+    for (size_t i = 0; i < gameBoard->rows; i++) {
+        for (size_t j = 0; j < gameBoard->cols; j++){
+            ans = fwrite(&(gameBoard->SOLVED[i][j]), sizeof(int), 1, file); // zapisać wartość pola
             assert(ans == 1);
         }
     }
