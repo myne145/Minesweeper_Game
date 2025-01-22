@@ -127,12 +127,6 @@ static void show_surrounding_empty_fields(size_t row, size_t col, size_t* buffer
                 continue;
             }
 
-            //pomijamy pole z którego funkcja została wywowałana
-            if (a == row && b == col)
-            {
-                continue;
-            }
-
             //jeśli żaden z powyższych warunków nie jest prawdziwy to można uznać że pole jest polem pustym i można rekurencyjnie sprawdzać dalej
             gameBoard->P[a][b] = 0;
             ++*buffer;

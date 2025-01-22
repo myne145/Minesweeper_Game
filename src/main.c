@@ -4,10 +4,10 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "src/Board/board.h"
-#include "src/Game/game.h"
-#include "src/GameStats/game_stats.h"
-#include "src/SaveAndLoadGame/save_load.h"
+#include "Board/board.h"
+#include "Game/game.h"
+#include "GameStats/game_stats.h"
+#include "SaveAndLoadGame/save_load.h"
 
 void set_values_from_preset(int preset, size_t* rows, size_t* cols, size_t* bombs)
 {
@@ -48,6 +48,7 @@ int main(int argc, char** argv) {
     int launchOption = getopt(argc, argv, ":l:");
     size_t rows, cols, bombs;
     size_t seed = time(NULL);
+//    size_t seed = 1737580773;
     srand(seed);
     board* gameBoard;
 
