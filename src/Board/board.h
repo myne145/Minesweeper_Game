@@ -28,27 +28,27 @@ board* make_board(size_t rows, size_t cols, size_t amountOfBombs);
 
 /**
  * Funkcja zwalniająca pamiec zaalokowaną dla planszy
- * @param Board - wskaźnik na plansze
+ * @param gameBoard - wskaźnik na plansze
  */
-void free_board(board* Board);
+void free_board(board* gameBoard);
 
 /**
  * Funkcja pokazująca plansze podczs gry (bez bomb)
- * @param Board - wskaźnik na plansze
+ * @param gameBoard - wskaźnik na plansze
  */
-void print_board_game(board* Board);
+void print_board_game(board* gameBoard);
 
 /**
  * Funkcja sprawdzająca poprawność planszy
- * @param Board - wskaźnik na plansze
+ * @param gameBoard - wskaźnik na plansze
  */
-void board_assert(board* Board);
+void board_assert(board* gameBoard);
 
 /**
  * Funkcja wypełniająca planszę bombami i numerkami
- * @param board plansza którą chcemy wypełnić
+ * @param gameBoard plansza którą chcemy wypełnić
  */
-void randomize_solution_to_board(board* board,size_t firstRow, size_t firstCol);
+void randomize_solution_to_board(board* gameBoard, size_t firstRow, size_t firstCol);
 
 /**
  * wypisuje ustawienia gry
@@ -56,7 +56,7 @@ void randomize_solution_to_board(board* board,size_t firstRow, size_t firstCol);
  * @param preset preset gry - jeśli niestandardowy podaj NULL
  * @param gameBoard plansza
  */
-void print_board_stats(size_t seed, char* preset, board* gameBoard);
+void print_board_stats(size_t seed, board* gameBoard);
 
 /**
  * odkrywa wszystkie bomby na planszy

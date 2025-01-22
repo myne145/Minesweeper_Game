@@ -65,6 +65,7 @@ void update_score(size_t amountOfRevealedFields, board* gameBoard) {
     gameBoard->score += amountOfRevealedFields * gameBoard->multiplier;
 }
 
+//tą funkcję napewno da się zoptymalizować
 static void show_surrounding_empty_fields(size_t row, size_t col, size_t* buffer, board* gameBoard) {
     //szukamy pól które musimy rekurencyjnie przeszukać
     //wybieramy obszar 3x3 chyba że jesteśmy na granicy tablicy wtedy zmneijszamy granice aby uniknac segfaulta
@@ -122,12 +123,6 @@ static void show_surrounding_empty_fields(size_t row, size_t col, size_t* buffer
             //jeśli pole na planszy użytkownika zostało odkryte to też pomijamy je
             //również jeśli pole jest flagą którą uzytkownik postawił to pomijamy
             if (gameBoard->P[a][b] != - 1 || gameBoard->P[a][b] == -3)
-            {
-                continue;
-            }
-
-            //pomijamy pole z którego funkcja została wywowałana
-            if (a == row && b == col)
             {
                 continue;
             }
@@ -204,7 +199,8 @@ static int is_game_won(board* gameBoard)
         for (int j = 0; j < gameBoard->cols; j++)
         {
             //warunek do flagi
-            if (gameBoard->P[i][j] == -3)
+            //sprawdzamy czy wszystkie flagi na planszy usera sa tylko w miejscach gdzie w rozwiązaniu są bomby
+            if (gameBoard->P[i][j] == -3 && gameBoard->SOLVED[i][j] == -2)
             {
                 continue;
             }
@@ -290,7 +286,7 @@ static void game_loop(board* gameBoard)
 
     printf("%d Best players:\n", amountOfPlayersToPrint);
     printf("\tName\t\tScore\t\tTime\n");
-    print_players_(players, amountOfPlayersToPrint);
+    print_players(players, amountOfPlayersToPrint);
     for(int i = 0; i < amountOfPlayersToPrint; i++)
         free_player(players[i]);
     free(players);
@@ -308,7 +304,7 @@ static void game_loop(board* gameBoard)
     free_board(gameBoard);
 
     printf("-=-=-=-=-=-=-=-=-=-=-=-=-=Retrying-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
-    print_board_stats(seed, NULL, gameBoard);
+    print_board_stats(seed, gameBoard);
     printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
 
     // printf("Retrying with size %zux%zu and %zu bombs.\nSeed: %zu\n",
