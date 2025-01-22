@@ -1,6 +1,6 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wextra -I./src
+CFLAGS = -lraylib -L src/RayLibGUI/Raylib/5.5/lib-I/opt/homebrew/include -Wextra -I./src
 
 # Directories
 SRC_DIR = src
@@ -34,5 +34,8 @@ clean:
 # Run the program
 run: $(TARGET)
 	./$(TARGET)
+
+run_gui: $(TARGET)
+	./$(TARGET) -g
 
 .PHONY: all clean run

@@ -8,6 +8,7 @@
 #include "Game/game.h"
 #include "GameStats/game_stats.h"
 #include "SaveAndLoadGame/save_load.h"
+#include "RayLibGUI/ray.h"
 
 void set_values_from_preset(int preset, size_t* rows, size_t* cols, size_t* bombs)
 {
@@ -45,7 +46,13 @@ void show_best_players() {
 
 
 int main(int argc, char** argv) {
-    int launchOption = getopt(argc, argv, ":l:");
+    int launchOption = getopt(argc, argv, ":l:g");
+
+    if(launchOption == 'g') {
+        gui();
+        exit(EXIT_SUCCESS);
+    }
+
     size_t rows, cols, bombs;
     size_t seed = time(NULL);
 //    size_t seed = 1737580773;
