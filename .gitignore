@@ -1,5 +1,4 @@
 /CMakeLists.txt
-/CMakeLists_raylib.txt
 /cmake-build-debug/
 /.idea
 /.vscode
@@ -7,4 +6,3 @@
 /build
 /CMakeLists
 /.DS_Store
-/MINESWEEPER_STATS
