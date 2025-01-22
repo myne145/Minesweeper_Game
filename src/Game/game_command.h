@@ -6,6 +6,15 @@
 #define MINESWEEPER_JIMP1_GAME_COMMAND_H
 
 /**
+ * Pokazuje zapytanie tak czy nie
+ * @param text tekst
+ * @param defaultYes czy domyślną opcją jest TAK
+ * @return czy user dał tak czy nie
+ */
+int show_yes_no_input_field(char* text, int defaultYes);
+
+
+/**
  * Dzieli komendę po spacjach na tablicę stringów
  * @param line string z komendą
  * @param commandLength adres wartości gdzie przetrzymujemy długość tablicy z komendą

@@ -3,14 +3,18 @@
 
 #include "../Board/board.h"
 
-// Funkcja zapisująca grę do pliku binarnego wybranego przez gracza
-// @param save_name - nazwa pliku do zapisu
-// @param Board - wskaźnik na planszę
-static void save_game(char* save_name, board* Board);
+/**
+ * Funkcja zapisująca grę do pliku binarnego wybranego przez gracza
+ * @param save_name - nazwa pliku do zapisu
+ * @param gameBoard - wskaźnik na planszę
+ */
+static void save_game(char* save_name, board* gameBoard);
 
-// Funkcja wczytująca grę z pliku binarnego wybranego przez gracza
-// @param save_name - nazwa pliku do odczytu
-// @param Board - wskaźnik na planszę
+/**
+ * Funkcja wczytująca grę z pliku binarnego wybranego przez gracza
+ * @param save_name - nazwa pliku do odczytu
+ * @return plansza którą wczytaliśmy
+ */
 board* load_game(char* save_name);
 
 /**
