@@ -12,15 +12,17 @@ typedef struct {
     CellState state; // Stan komórki
 } Cell;
 
+#define SCALE 2
+
 // Rozmiar komórki planszy
-#define CELL_SIZE 40
+#define CELL_SIZE (SCALE*40)
 
 // Zmienne globalne określające rozmiar planszy
-size_t ROWS;
-size_t COLS;
+extern size_t ROWS;
+extern size_t COLS;
 
 // Liczba bomb na planszy
-size_t BOMBS;
+extern size_t BOMBS;
 
 // Tabela najlepszych graczy
 #define MAX_PLAYERS 5
@@ -76,5 +78,8 @@ void save_top_player(const char *nick, int score);
 
 // Funkcja odczytująca najlepszych graczy z pliku
 int load_top_players(Player players[]);
+
+// Funkcja zliczajaca odkryte pola planszy
+int CountRevealedCell(Cell board[ROWS][COLS]);
 
 #endif //RAY_LIB_H

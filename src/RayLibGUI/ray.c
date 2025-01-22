@@ -4,7 +4,6 @@
 * Autor: Oskar Przybylski
 */
 
-#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,16 +13,17 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "Raylib/5.5/include/raylib.h" // Biblioteka RayLib
+#include <raylib.h>                           // Biblioteka RayLib
 #include "ray.h"                              // Nagłówek gry
 #include "ray_lib.h"                          // Funkcje pomocnicze gry
 
 
+
 // Zmienne globalne opisujące gre
 clock_t start = 0; // Czas rozpoczęcia gry
-Cell board[0][0]; // Tablica komórek
 int score = 0;  // Wynik
 int gameOver = 0; // Czy gra się skończyła
+Cell board[40][40]; // Tablica komórek
 char *mode_str = NULL; // Tryb gry (w zasadzie to jego nazwa)
 int LOADED = 0;         //Flaga czy gra została wczytana
 int loaded_time = 0;    //Czas zapisany do pliku zapisu potrzebny przy wczytywaniu
@@ -31,8 +31,8 @@ int loaded_time = 0;    //Czas zapisany do pliku zapisu potrzebny przy wczytywan
 
 // Funkcja wyświetlająca listę najlepszych graczy
 void leaderboard_view(void) {
-    int screenWidth = 800;
-    int screenHeight = 600;
+    int screenWidth = SCALE*800;
+    int screenHeight = SCALE*600;
 
     Player players[MAX_PLAYERS];
     int count = load_top_players(players);
@@ -61,14 +61,14 @@ void leaderboard_view(void) {
 
 // widoki
 int mode_select_view(void){
-    const int screenWidth = 600;
-    const int screenHeight = 600;
+    const int screenWidth = SCALE * 600;
+    const int screenHeight = SCALE * 600;
 
     InitWindow(screenWidth, screenHeight, "Minesweeper - Mode Selection");
     SetTargetFPS(60);
 
     // zmienna przechowująca wybrany tryb gry
-    int modeSelected = 0; // 0 = nie wybvrano , 1 = Easy, 2 = Medium, 3 = Hard, 4 = wczytywanie z pliku
+    int modeSelected = 0; // 0 = nie wybrano , 1 = Easy, 2 = Medium, 3 = Hard, 4 = wczytywanie z pliku
     bool startGame = false;
 
     // Główna pętla wyboru trybu gry
@@ -76,16 +76,16 @@ int mode_select_view(void){
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        DrawText("Mineswepper", screenWidth / 2 - MeasureText("Mineswepper", 30) / 2, 50, 30, BLACK);
-        DrawText("by Antek Kuczynski and Oskar Przybylski", screenWidth / 2 - MeasureText("by Antek Kuczyński and Oskar Przybylski", 10) / 2, 100, 10, BLACK);
+        DrawText("Mineswepper", screenWidth / 2 - MeasureText("Mineswepper", SCALE * 30) / 2, SCALE * 50, SCALE * 30, BLACK);
+        DrawText("by Antek Kuczynski and Oskar Przybylski", screenWidth / 2 - MeasureText("by Antek Kuczyński and Oskar Przybylski", SCALE * 10) / 2, SCALE * 100, SCALE * 10, BLACK);
 
-        DrawText("Select Difficulty Mode", screenWidth / 2 - MeasureText("Select Difficulty Mode", 20) / 2, 150, 20, BLACK);
-        DrawText("1. Easy (9x9, 10 Mines)", screenWidth / 2 - MeasureText("1. Easy (9x9, 10 Mines)", 20) / 2, 250, 20, DARKGREEN);
-        DrawText("2. Medium (16x16, 40 Mines)", screenWidth / 2 - MeasureText("2. Medium (16x16, 40 Mines)", 20) / 2, 300, 20, DARKBLUE);
-        DrawText("3. Hard (16x30, 99 Mines)", screenWidth / 2 - MeasureText("3. Hard (16x30, 99 Mines)", 20) / 2, 350, 20, RED);
+        DrawText("Select Difficulty Mode", screenWidth / 2 - MeasureText("Select Difficulty Mode", SCALE * 20) / 2,SCALE *  150, SCALE * 20, BLACK);
+        DrawText("1. Easy (9x9, 10 Mines)", screenWidth / 2 - MeasureText("1. Easy (9x9, 10 Mines)", SCALE * 20) / 2, SCALE * 250, SCALE * 20, DARKGREEN);
+        DrawText("2. Medium (16x16, 40 Mines)", screenWidth / 2 - MeasureText("2. Medium (16x16, 40 Mines)", SCALE * 20) / 2, SCALE * 300, SCALE * 20, DARKBLUE);
+        DrawText("3. Hard (16x30, 99 Mines)", screenWidth / 2 - MeasureText("3. Hard (16x30, 99 Mines)", SCALE * 20) / 2, SCALE * 350, SCALE * 20, RED);
 
-        DrawText("4.Load save from file...", screenWidth / 2 - MeasureText("Load save from file...", 10) / 2, 450, 10, BLACK);
-        DrawText("5. Leaderboard", screenWidth / 2 - MeasureText("5. Leaderboard", 10) / 2, 470, 10, BLACK);
+        DrawText("4.Load save from file...", screenWidth / 2 - MeasureText("Load save from file...", SCALE * 10) / 2, SCALE * 450, SCALE * 10, BLACK);
+        DrawText("5. Leaderboard", screenWidth / 2 - MeasureText("5. Leaderboard", SCALE * 10) / 2, SCALE * 470, SCALE *  10, BLACK);
 
         if (IsKeyPressed(KEY_ONE)) {
             modeSelected = 1; // Easy mode
@@ -193,14 +193,14 @@ int load(char* filename){
 
 void save_file_view(void){
     // Inicjalizacja okna
-    const int screenWidth = 800;
-    const int screenHeight = 600;
+    const int screenWidth = SCALE * 400;
+    const int screenHeight = SCALE * 200;
     InitWindow(screenWidth, screenHeight, "Save game to file");
 
     int saved = 0;
 
     // Inicjalizacja zmiennych
-    char* filename = (char*)malloc(100*sizeof(char));  // Tablica na nazwę pliku
+    char* filename = (char*)calloc(100,sizeof(char));  // Tablica na nazwę pliku
     int cursorPosition = 0;  // Pozycja kursora w nazwie pliku
 
     SetTargetFPS(60);  // Ustawienie liczby klatek na sekundę
@@ -238,9 +238,9 @@ void save_file_view(void){
 
             ClearBackground(RAYWHITE);
 
-            DrawText("Enter save file name below:", 10, 10, 20, DARKGRAY);
-            DrawText(filename, 10, 40, 20, BLACK);
-            DrawText("|", 10 + MeasureText(filename, 20), 40, 20, BLACK);  // Kursor
+            DrawText("Enter save file name below:", 10 * SCALE, 10 * SCALE, 20 * SCALE, DARKGRAY);
+            DrawText(filename, 10 * SCALE, 40 * SCALE, 20 * SCALE, BLACK);
+            DrawText("|", 10 * SCALE + MeasureText(filename, 20 * SCALE), 40 * SCALE, 20 * SCALE, BLACK);  // Kursor
 
             EndDrawing();
         }else{
@@ -265,14 +265,14 @@ void save_file_view(void){
     CloseWindow();
 }
 
-void load_file_view(void){
+int load_file_view(void){
     // Inicjalizacja okna
-    const int screenWidth = 800;
-    const int screenHeight = 600;
+    const int screenWidth = SCALE * 400;
+    const int screenHeight = SCALE * 200;
     InitWindow(screenWidth, screenHeight, "Load save from file");
 
     // Inicjalizacja zmiennych
-    char* filename = (char*)malloc(100*sizeof(char));  // Tablica na nazwę pliku
+    char* filename = (char*)calloc(100,sizeof(char));  // Tablica na nazwę pliku
     int cursorPosition = 0;  // Pozycja kursora w nazwie pliku
 
     SetTargetFPS(60);  // Ustawienie liczby klatek na sekundę
@@ -303,52 +303,54 @@ void load_file_view(void){
             }
         }
 
+
         // Rysowanie
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
 
-        DrawText("Enter save file name below:", 10, 10, 20, DARKGRAY);
-        DrawText(filename, 10, 40, 20, BLACK);
-        DrawText("|", 10 + MeasureText(filename, 20), 40, 20, BLACK);  // Kursor
+        DrawText("Enter save file name below:", SCALE * 10,SCALE *  10,SCALE *  20, DARKGRAY);
+        DrawText(filename,SCALE *  10,SCALE *  40,SCALE *  20, BLACK);
+        DrawText("|", SCALE * 15 + MeasureText(filename, SCALE * 20), SCALE * 40,SCALE *  20, BLACK);  // Kursor
 
         EndDrawing();
     }
 
     // Zamykanie okna
     CloseWindow();
+    return 1;
 }
 
 void main_game_view(void) {
     
-    const int screenWidth = COLS * CELL_SIZE;
-    const int screenHeight = ROWS * CELL_SIZE;
+    const int screenWidth =  COLS * CELL_SIZE;
+    const int screenHeight =  ROWS * CELL_SIZE;
 
     InitWindow(screenWidth, screenHeight, "Minesweeper");
     SetTargetFPS(60);
 
     if(!LOADED){
         InitBoard(board);
+        score = CountRevealedCell(board) * ((BOMBS*BOMBS)/(ROWS*COLS)); //Revaled field * muliplayer // multipayer = (BOMB^2) / (ROWS*COLS)
     }
-    int win = 0;
-
-    score = 1000 * BOMBS;
     
+    int win = 0;
 
     while (!WindowShouldClose() && !gameOver && !win) {
         // Obsługa myszy
         if (!gameOver && !win) {
+            score = CountRevealedCell(board);
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 Vector2 mouse = GetMousePosition();
                 int col = (mouse.x ) / CELL_SIZE;
-                int row = (mouse.y - 40) / CELL_SIZE;
+                int row = (mouse.y - SCALE * 40) / CELL_SIZE;
                 if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
                     RevealCell(board, row, col, &gameOver);
                 }
-            } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+            } else if (IsKeyPressed(KEY_F) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
                 Vector2 mouse = GetMousePosition();
                 int col = (mouse.x ) / CELL_SIZE;
-                int row = (mouse.y - 40) / CELL_SIZE;
+                int row = (mouse.y - SCALE *40) / CELL_SIZE;
                 if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
                     ToggleFlag(board, row, col);
                 }
@@ -357,9 +359,8 @@ void main_game_view(void) {
             }
         }
 
-        score -= (clock() - start)/(1550000);
-
         BeginDrawing();
+
         ClearBackground(RAYWHITE);
         win = is_game_won(board);
 
@@ -377,9 +378,10 @@ void main_game_view(void) {
             BeginDrawing();
             ClearBackground(RAYWHITE);
 
-            DrawText("Game over Christopher..", screenWidth/5  -10 , screenHeight/5   , 10, RED);
-            DrawText(TextFormat("Time: %d", time), screenWidth/5  -10 , screenHeight/5 + 50, 10, RED);
-            DrawText(TextFormat("Score: %d", score), screenWidth/5  -10 , screenHeight/5 + 100, 10, RED);
+            DrawText("You Lose !!!", SCALE * (screenWidth/5  -10) ,SCALE * (screenHeight/5) ,SCALE * 20, RED);
+            DrawText(TextFormat("Time: %d", time),SCALE * (screenWidth/5  -10) ,SCALE * (screenHeight/5 + 50),SCALE * 20, BLACK);
+            DrawText(TextFormat("Score: %d", score),SCALE * (screenWidth/5  -10) ,SCALE * (screenHeight/5 + 100),SCALE * 20, BLACK);
+
             EndDrawing();
         }
     }
@@ -387,7 +389,7 @@ void main_game_view(void) {
     if(win){
 
         // Inicjalizacja zmiennych
-        char* nick = (char*)malloc(60*sizeof(char));  // Tablica na nazwę pliku
+        char* nick = (char*)calloc(60,sizeof(char));  // Tablica na nazwę pliku
         int cursorPosition = 0;  // Pozycja kursora w nazwie pliku
         int time = (clock() - start) / 155000;
 
@@ -414,25 +416,27 @@ void main_game_view(void) {
              if(IsKeyPressed(KEY_ENTER) && cursorPosition > 0){
                     save_top_player(nick, score);
                     leaderboard_view();
+                    if(IsKeyPressed(KEY_ESCAPE)){
+                        exit(0);
+                    }
              }
         
             BeginDrawing();
             ClearBackground(RAYWHITE);
 
-            DrawText("You Win !!!", screenWidth/5  -10 , screenHeight/5   , 10, GREEN);
-            DrawText(TextFormat("Time: %d", time), screenWidth/5  -10 , screenHeight/5 + 50, 10, RED);
-            DrawText(TextFormat("Score: %d", score), screenWidth/5  -10 , screenHeight/5 + 100, 10, RED);
+            DrawText("You WIN !!!", SCALE * (screenWidth/5  -10) ,SCALE * (screenHeight/5) ,SCALE * 20, GREEN);
+            DrawText(TextFormat("Time: %d", time),SCALE * (screenWidth/5  -10) ,SCALE * (screenHeight/5 + 50),SCALE * 20, BLACK);
+            DrawText(TextFormat("Score: %d", score),SCALE * (screenWidth/5  -10) ,SCALE * (screenHeight/5 + 100),SCALE * 20, BLACK);
 
-            DrawText("Enter your name below:", 10, 10, 20, DARKGRAY);
-            DrawText(nick, 10, 40, 20, BLACK);
-            DrawText("|", 10 + MeasureText(nick, 20), 40, 20, BLACK);  // Kursor
+            DrawText("Enter your name below:",SCALE * 10,SCALE * 10,SCALE * 20, DARKGRAY);
+            DrawText(nick,SCALE * 10,SCALE * 40,SCALE * 20, BLACK);
+            DrawText("|",SCALE * 15 + MeasureText(nick,SCALE * 20),SCALE * 40,SCALE * 20, BLACK);  // Kursor
 
             EndDrawing();
         }
     }
-    
-
     CloseWindow();
+    exit(0);
 }
 
 void gui(void){
@@ -443,8 +447,8 @@ void gui(void){
 
     if(mode == 4){
         Cell board[ROWS][COLS];
-        load_file_view(); 
-           
+        int valid = load_file_view(); 
+        if(!valid) exit(0);
     }else{
         if(mode == 1){
             ROWS = 9;
@@ -462,6 +466,5 @@ void gui(void){
         clock_t start = clock();
         Cell board[ROWS][COLS];
     }
-
     main_game_view();
 }

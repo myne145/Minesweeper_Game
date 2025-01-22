@@ -10,8 +10,10 @@
 #include <time.h>
 #include <string.h>
 
-#include "Raylib/5.5/include/raylib.h"
+#include <raylib.h>
 #include "ray_lib.h"
+
+size_t ROWS,COLS,BOMBS;
 
 // Funkcja rekurencyjnie odkrywająca komórki wokół komórki o współrzędnych (row, col). Zmienia gameOver na 1 jeśli odkryta komórka zawiera bombę
 void RevealCell(Cell board[ROWS][COLS], int row, int col, int *gameOver) {
@@ -98,6 +100,20 @@ void PlaceBombs(Cell board[ROWS][COLS]) {
     }
 }
 
+int CountRevealedCell(Cell board[ROWS][COLS]){
+    int counter = 0;
+
+    for(int row = 0; row < ROWS; row++){
+        for(int col = 0; col < COLS; col++){
+            if(board[row][col].state == REVEALED){
+                counter++;
+            }        
+        }
+    }
+
+    return counter;
+}
+
 // Funkcja inicjalizująca planszę gry
 void InitBoard(Cell board[ROWS][COLS]) {
     // Inicjalizacja generatora liczb losowych
@@ -120,14 +136,14 @@ void InitBoard(Cell board[ROWS][COLS]) {
 // Funkcja rysująca planszę gry dzięki bibliotece Raylib
 void DrawBoard(Cell board[ROWS][COLS], int gameOver, const char* mode, int score, int gameTime) {
     // Wyświetlanie tabelki na górze
-    int tableHeight = 40;
+    int tableHeight = SCALE * 40;
     DrawRectangle(0, 0, COLS * CELL_SIZE, tableHeight, DARKGRAY);
     DrawRectangleLines(0, 0, COLS * CELL_SIZE, tableHeight, BLACK);
 
     // Wyświetlanie tekstu w tabelce
-    DrawText(TextFormat("Mode: %s", mode), 10, 10, 20, WHITE);
-    DrawText(TextFormat("Score: %d", score), 150, 10, 20, WHITE);
-    DrawText(TextFormat("Time: %d", gameTime), 280, 10, 20, WHITE);
+    DrawText(TextFormat("Mode: %s", mode),SCALE *  10,SCALE *  10, SCALE * 20, WHITE);
+    DrawText(TextFormat("Score: %d", score),SCALE *  150,SCALE *  10, SCALE * 20, WHITE);
+    DrawText(TextFormat("Time: %d", gameTime),SCALE *  275,SCALE *  10, SCALE * 20, WHITE);
 
     // Rysowanie planszy gry
     for (int row = 0; row < ROWS; row++) {
@@ -142,25 +158,25 @@ void DrawBoard(Cell board[ROWS][COLS], int gameOver, const char* mode, int score
             if (board[row][col].state == HIDDEN) {
                 DrawRectangleRec(cell, LIGHTGRAY);
                 if(board[row][col].isBomb){
-                    DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, WHITE);
-                }else
+                    if(0)DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, WHITE);
+                }
                 DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, DARKGRAY);
             // Jeśli komórka jest oznaczona flagą, rysujemy ją na niebiesko
             } else if (board[row][col].state == FLAGGED) {
                 DrawRectangleRec(cell, SKYBLUE);
-                DrawText("F", x + CELL_SIZE / 4, y + CELL_SIZE / 4, 20, BLACK);
+                DrawText("F", x + CELL_SIZE / 4, y + CELL_SIZE / 4,SCALE *  20, BLACK);
             // Jeśli komórka jest odkryta,
             } else if (board[row][col].state == REVEALED) {
                 // i ma bombę, rysujemy ją na czerwono
                 if (board[row][col].isBomb) {
                     DrawRectangleRec(cell, RED);
-                    DrawText("*", x + CELL_SIZE / 4, y + CELL_SIZE / 4, 20, BLACK);
+                    DrawText("*", x + CELL_SIZE / 4, y + CELL_SIZE / 4,SCALE *  20, BLACK);
                 // jeśli nie ma bomby, rysujemy ją na biało
                 } else {
                     DrawRectangleRec(cell, RAYWHITE);
                     // Jeśli komórka ma sąsiadujące bomby, rysujemy liczbę
                     if (board[row][col].neighborBombs > 0) {
-                        DrawText(TextFormat("%d", board[row][col].neighborBombs), x + CELL_SIZE / 4, y + CELL_SIZE / 4, 20, DARKGRAY);
+                        DrawText(TextFormat("%d",board[row][col].neighborBombs), x + CELL_SIZE / 4, y + CELL_SIZE / 4,SCALE *  20, DARKGRAY);
                     }
                 }
                 // Rysowanie obramowania komórki
@@ -183,7 +199,7 @@ int is_game_won(Cell board[ROWS][COLS]){
             }
             // Jeśli komórka która nie zawiera bomby jest zakryta, gra nie jest wygrana
             if(board[row][col].state == HIDDEN && !board[row][col].isBomb){
-                return 0;
+                //return 0;
             }
         }
     }
