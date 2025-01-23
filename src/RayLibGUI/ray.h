@@ -1,6 +1,6 @@
 #ifndef RAY_H
 #define RAY_H
 
-void gui(void);
+void GuiInit(void);
 
 #endif //RAY_H

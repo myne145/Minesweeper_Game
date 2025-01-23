@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     int launchOption = getopt(argc, argv, ":l:g");
 
     if(launchOption == 'g') {
-        gui();
+        GuiInit();
         exit(EXIT_SUCCESS);
     }
 
