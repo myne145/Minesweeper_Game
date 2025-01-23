@@ -156,7 +156,7 @@ void print_board_game(board* gameBoard) {
 void print_board_stats(size_t seed, board* gameBoard) {
     printf("Settings:\n");
     printf("Dimensions: %zux%zu\n", gameBoard->rows, gameBoard->cols);
-    printf("Bombs: %zu\n", gameBoard->amountOfBombs);
+    printf("Mines: %zu\n", gameBoard->amountOfBombs);
     printf("Seed: %zu\n", seed);
     printf("Score multiplier: %f\n", gameBoard->multiplier);
 }
@@ -228,7 +228,7 @@ void randomize_solution_to_board(board* gameBoard, size_t firstRow, size_t first
     board_assert(gameBoard);
 
     if(gameBoard->amountOfBombs >= gameBoard->rows * gameBoard->cols || gameBoard->amountOfBombs < 0) {
-        fprintf(stderr, "Invalid amount of bombs\n");
+        fprintf(stderr, "Invalid amount of mines\n");
         exit(-1);
     }
 

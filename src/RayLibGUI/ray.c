@@ -140,7 +140,7 @@ int save(char* filename){
     fwrite(&loaded_time, sizeof(int), 1, file);
 
     printf("Saved:\n");
-    printf("Rows: %zu Cols: %zu Bombs: %zu \n", ROWS,COLS,BOMBS);
+    printf("Rows: %zu Cols: %zu Mines: %zu \n", ROWS,COLS,BOMBS);
 
     printf("Mode: %d\n", mode);
     printf("score: %d\n", score);
@@ -178,7 +178,7 @@ int load(char* filename){
     }
 
     printf("Loaded:\n");
-    printf("Rows: %zu Cols: %zu Bombs: %zu \n", ROWS,COLS,BOMBS);
+    printf("Rows: %zu Cols: %zu Mines: %zu \n", ROWS,COLS,BOMBS);
 
     printf("Mode: %s\n", mode_str);
 

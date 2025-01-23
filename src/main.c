@@ -74,9 +74,9 @@ int main(int argc, char** argv) {
 
 
     printf("-=-=-=-=-=-=-=-=-=-Select game difficulty-=-=-=-=-=-=-=-=-=-\n");
-    printf("[1] Easy - 9x9 fields, 10 bombs\n");
-    printf("[2] Medium - 16x16 fields, 40 bombs\n");
-    printf("[3] Hard - 16x30 fields, 99 bombs\n");
+    printf("[1] Easy - 9x9 fields, 10 mines\n");
+    printf("[2] Medium - 16x16 fields, 40 mines\n");
+    printf("[3] Hard - 16x30 fields, 99 mines\n");
     printf("[4] Custom\n");
     printf("or [5] to print n best players\n");
 
@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
         set_values_from_preset(selectedOption, &rows, &cols, &bombs);
     } else {
         //gra niestandardowa
-        printf("Enter desired board settings [rows cols bombs]:\t");
+        printf("Enter desired board settings [rows cols mines]:\t");
         scanf("%zu %zu %zu", &rows, &cols, &bombs);
     }
     gameBoard = make_board(rows, cols, bombs);
