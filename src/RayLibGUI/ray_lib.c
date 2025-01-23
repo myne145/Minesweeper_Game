@@ -16,7 +16,7 @@
 size_t ROWS,COLS,BOMBS;
 
 // Funkcja rekurencyjnie odkrywająca komórki wokół komórki o współrzędnych (row, col). Zmienia gameOver na 1 jeśli odkryta komórka zawiera bombę
-void RevealCell(Cell board[ROWS][COLS], int row, int col, int *gameOver) {
+extern void RevealCell(Cell board[ROWS][COLS], int row, int col, int *gameOver) {
     // Sprawdzenie czy współrzędne są poprawne
     if (row < 0 || row >= ROWS || col < 0 || col >= COLS || board[row][col].state != HIDDEN) return;
 
@@ -47,7 +47,7 @@ void RevealCell(Cell board[ROWS][COLS], int row, int col, int *gameOver) {
 }
 
 // Funkcja oznaczająca komórkę flagą lub usuwająca flagę
-void ToggleFlag(Cell board[ROWS][COLS], int row, int col) {
+extern void ToggleFlag(Cell board[ROWS][COLS], int row, int col) {
     // Jeśli komórka jest zakryta, oznaczamy ją flagą
     if (board[row][col].state == HIDDEN) {
         board[row][col].state = FLAGGED;
@@ -58,7 +58,7 @@ void ToggleFlag(Cell board[ROWS][COLS], int row, int col) {
 }
 
 // Funkcja obliczająca liczbę bomb w sąsiednich komórkach
-void CalculateNeighbors(Cell board[ROWS][COLS]) {
+extern void CalculateNeighbors(Cell board[ROWS][COLS]) {
     // Pętle przechodzą przez wszystkie komórki planszy
     for (int row = 0; row < ROWS; row++) {
         for (int col = 0; col < COLS; col++) {
@@ -84,23 +84,38 @@ void CalculateNeighbors(Cell board[ROWS][COLS]) {
     }
 }
 
+static int IsNeighbour(int row,int col,int firstrow, int firstcol){
+    for(int dr = -1; dr < 2; dr++){
+        if(row == firstrow+dr) return 1;
+    }
+
+     for(int dc = -1; dc < 2; dc++){
+        if(col == firstcol+dc) return 1;
+    }
+    
+    return 0;
+}
+
 // Funkcja losowo rozmieszczająca bomby na planszy
 // Losuje współrzędne komórek, aż do momentu, gdy wszystkie bomby zostaną rozmieszczone
 // Predefiniowana ilość bomb jest zdefiniowana jako BOMBS, komórki są losowane aż do momentu, gdy wszystkie bomby zostną rozmieszczone
-void PlaceBombs(Cell board[ROWS][COLS]) {
+extern void PlaceBombs(Cell board[ROWS][COLS],int firstrow, int firstcol) {
     int placedBombs = 0;
     while (placedBombs < BOMBS) {
         int row = rand() % (ROWS-1);
         int col = rand() % (COLS-1);
         // Jeśli komórka nie zawiera bomby, umieszczamy w niej bombę
         if (!board[row][col].isBomb) {
-            board[row][col].isBomb = 1;
-            placedBombs++;
+            if(!IsNeighbour(row,col,firstrow,firstcol)){
+                board[row][col].isBomb = 1;
+                placedBombs++;
+            }
         }
     }
 }
 
-int CountRevealedCell(Cell board[ROWS][COLS]){
+// Funkcja liczaca odsloniete pola w celu kalkulacji wyniku
+extern int CountRevealedCell(Cell board[ROWS][COLS]){
     int counter = 0;
 
     for(int row = 0; row < ROWS; row++){
@@ -115,7 +130,7 @@ int CountRevealedCell(Cell board[ROWS][COLS]){
 }
 
 // Funkcja inicjalizująca planszę gry
-void InitBoard(Cell board[ROWS][COLS]) {
+extern void InitBoard(Cell board[ROWS][COLS],int firstrow, int firstcol) {
     // Inicjalizacja generatora liczb losowych
     srand(time(NULL));
     // Pętle przechodzą przez wszystkie komórki planszy
@@ -128,13 +143,13 @@ void InitBoard(Cell board[ROWS][COLS]) {
         }
     }
     // Umieszczenie bomb na planszy
-    PlaceBombs(board);
+    PlaceBombs(board,firstrow,firstcol);
     // Obliczenie liczby bomb w sąsiednich komórkach
     CalculateNeighbors(board);
 }
 
 // Funkcja rysująca planszę gry dzięki bibliotece Raylib
-void DrawBoard(Cell board[ROWS][COLS], int gameOver, const char* mode, int score, int gameTime) {
+extern void DrawBoard(Cell board[ROWS][COLS], int gameOver, const char* mode, int score, int gameTime) {
     // Wyświetlanie tabelki na górze
     int tableHeight = SCALE * 40;
     DrawRectangle(0, 0, COLS * CELL_SIZE, tableHeight, DARKGRAY);
@@ -156,11 +171,14 @@ void DrawBoard(Cell board[ROWS][COLS], int gameOver, const char* mode, int score
 
             // Jeśli komórka jest zakryta, rysujemy ją na szaro
             if (board[row][col].state == HIDDEN) {
-                DrawRectangleRec(cell, LIGHTGRAY);
-                if(board[row][col].isBomb){
-                    if(0)DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, WHITE);
+                if(board[row][col].isBomb && DEBUG){
+                    // Jesli jestesmy w trybie debugowania to pokazujemy bomby
+                    DrawRectangleRec(cell, RED);
+                    DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, RED);
+                }else{
+                    DrawRectangleRec(cell, LIGHTGRAY);
+                    DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, DARKGRAY);
                 }
-                DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, DARKGRAY);
             // Jeśli komórka jest oznaczona flagą, rysujemy ją na niebiesko
             } else if (board[row][col].state == FLAGGED) {
                 DrawRectangleRec(cell, SKYBLUE);
@@ -187,7 +205,7 @@ void DrawBoard(Cell board[ROWS][COLS], int gameOver, const char* mode, int score
 }
 
 // Funkcja sprawdzająca, czy gra została wygrana
-int is_game_won(Cell board[ROWS][COLS]){
+extern int IsGameWon(Cell board[ROWS][COLS]){
     // Iteracja po wszystkich komórkach
     for(int row = 0; row < ROWS; row++){
         for(int col = 0; col < COLS; col++){
@@ -197,10 +215,6 @@ int is_game_won(Cell board[ROWS][COLS]){
                     return 0;
                 }
             }
-            // Jeśli komórka która nie zawiera bomby jest zakryta, gra nie jest wygrana
-            if(board[row][col].state == HIDDEN && !board[row][col].isBomb){
-                //return 0;
-            }
         }
     }
     // Jeśli wszystkie bomby są oznaczone flagami, gra jest wygrana
@@ -208,16 +222,16 @@ int is_game_won(Cell board[ROWS][COLS]){
 }
 
 // Funkcja porównująca wyniki graczy (do sortowania)
-int compare_scores(const void *a, const void *b) {
+static int CompareScores(const void *a, const void *b) {
     Player *playerA = (Player *)a;
     Player *playerB = (Player *)b;
     return playerB->score - playerA->score; // Sortowanie malejąco
 }
 
 // Funkcja zapisująca top 5 graczy do pliku binarnego
-void save_top_player(const char *nick, int score) {
+extern void SaveTopPlayer(const char *nick, int score) {
     Player players[MAX_PLAYERS + 1]; // 6 miejsc, żeby uwzględnić nowego gracza
-    int count = 0;
+    int count = 0;  // zmienna ilosci graczy (rozmiar tablicy do sortowania)
 
     // Odczyt istniejących wyników z pliku
     FILE *file = fopen(FILE_NAME, "rb");
@@ -234,7 +248,7 @@ void save_top_player(const char *nick, int score) {
     }
 
     // Posortowanie graczy według wyników
-    qsort(players, count, sizeof(Player), compare_scores);
+    qsort(players, count, sizeof(Player), CompareScores);
 
     // Zapisanie tylko top 5 wyników do pliku
     file = fopen(FILE_NAME, "wb");
@@ -242,17 +256,21 @@ void save_top_player(const char *nick, int score) {
         perror("Błąd podczas otwierania pliku");
         return;
     }
+
+    // jesli mniej niz maxplayers to zapisujemy tyle ile jest a jak jest juz pelno to maxplayers
     fwrite(players, sizeof(Player), count < MAX_PLAYERS ? count : MAX_PLAYERS, file);
     fclose(file);
 }
 
 // Funkcja odczytująca najlepszych graczy z pliku
-int load_top_players(Player players[]) {
+extern int LoadTopPlayers(Player players[]) {
     FILE *file = fopen(FILE_NAME, "rb");
     if (file == NULL) {
         return 0; // Jeśli plik nie istnieje, zwracamy 0 graczy
     }
+    // wczytujemy najlepszych graczy do tablicy 
     int count = fread(players, sizeof(Player), MAX_PLAYERS, file);
     fclose(file);
+    // zwracamy nowa dlugosc tablicy graczy
     return count;
 }

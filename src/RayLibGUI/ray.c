@@ -20,22 +20,26 @@
 
 
 // Zmienne globalne opisujące gre
-clock_t start = 0; // Czas rozpoczęcia gry
-int score = 0;  // Wynik
-int gameOver = 0; // Czy gra się skończyła
-Cell board[40][40]; // Tablica komórek
-char *mode_str = NULL; // Tryb gry (w zasadzie to jego nazwa)
-int LOADED = 0;         //Flaga czy gra została wczytana
-int loaded_time = 0;    //Czas zapisany do pliku zapisu potrzebny przy wczytywaniu
+clock_t start = 0;      // Czas rozpoczęcia gry
+int score = 0;          // Wynik
+int gameOver = 0;       // Czy gra się skończyła
+Cell board[400][400];     // Tablica komórek
+char *mode_str = "";  // Tryb gry (w zasadzie to jego nazwa)
+int LOADED = 0;         // Flaga czy gra została wczytana
+int loaded_time = 0;    // Czas zapisany do pliku zapisu potrzebny przy wczytywaniu
 
+int firstrow = -1;      // koordynaty pierwszego klikniecia
+int firstcol = -1;      // -1 - brak pierwszego klikniecia
 
-// Funkcja wyświetlająca listę najlepszych graczy
-void leaderboard_view(void) {
+// Widok tabeli najlepszych graczy
+void LeaderboardView(void) {
     int screenWidth = SCALE*800;
     int screenHeight = SCALE*600;
 
+    // Tablica na najlepszych graczy
     Player players[MAX_PLAYERS];
-    int count = load_top_players(players);
+    // Wczytujemy z pliku najlepszych graczy
+    int count = LoadTopPlayers(players);
 
     InitWindow(screenWidth, screenHeight, "Top Players");
 
@@ -50,7 +54,7 @@ void leaderboard_view(void) {
         for (int i = 0; i < count; i++) {
             char text[100];
             snprintf(text, sizeof(text), "%d. %s - %d", i + 1, players[i].nick, players[i].score);
-            DrawText(text, 200, 150 + i * 50, 20, BLACK);
+            DrawText(text, 200, 150 + i * 50,SCALE * 20, BLACK);
         }
 
         EndDrawing();
@@ -59,8 +63,8 @@ void leaderboard_view(void) {
     CloseWindow();
 }
 
-// widoki
-int mode_select_view(void){
+// Widok menu gry
+int MenuView(void){
     const int screenWidth = SCALE * 600;
     const int screenHeight = SCALE * 600;
 
@@ -69,7 +73,7 @@ int mode_select_view(void){
 
     // zmienna przechowująca wybrany tryb gry
     int modeSelected = 0; // 0 = nie wybrano , 1 = Easy, 2 = Medium, 3 = Hard, 4 = wczytywanie z pliku
-    bool startGame = false;
+    bool startGame = false; // czy jakis tryb zostal wybrany // czy przechodzimy dalej
 
     // Główna pętla wyboru trybu gry
     while (!WindowShouldClose() && !startGame) {
@@ -100,7 +104,7 @@ int mode_select_view(void){
             modeSelected = 4; // Save game
             startGame = true;
         }else if(IsKeyPressed(KEY_FIVE)){
-            leaderboard_view();
+            LeaderboardView();
             CloseWindow();
         }
 
@@ -111,21 +115,25 @@ int mode_select_view(void){
     return modeSelected;
 }
 
-int save(char* filename){
+// Funkcja pomocnicza zapisujaca zapis gry fo pliku
+int Save(char* filename){
+    // otwieramy plik do pracy w trybie binarnym
     FILE* file = fopen(filename, "wb");
     if(file == NULL){
         fprintf(stderr, "Error opening file\n");
         return 0;
     }
 
+    // zapisujemy podstawowe parametry
     fwrite(&ROWS, sizeof(size_t), 1, file);
     fwrite(&COLS, sizeof(size_t), 1, file);
     fwrite(&BOMBS, sizeof(size_t), 1, file);
-
     fwrite(&score, sizeof(int), 1, file);
 
+    // zapisujemy lokalizacje bomb i flag i ogolnie stan gry
     fwrite(&board, sizeof(Cell), ROWS*COLS, file);
 
+    // zapisujemy wybrany tryb jako liczba (latwiej niz stringi o roznej dlugosci)
     int mode;
     if(strcmp(mode_str, "Easy") == 0){
         mode = 1;
@@ -134,22 +142,25 @@ int save(char* filename){
     }else if(strcmp(mode_str, "Hard") == 0){
         mode = 3;
     }
-
     fwrite(&mode, sizeof(int), 1, file);
 
+    // zapisujemy czas
     fwrite(&loaded_time, sizeof(int), 1, file);
 
-    printf("Saved:\n");
-    printf("Rows: %zu Cols: %zu Mines: %zu \n", ROWS,COLS,BOMBS);
+    // log z zapsiu 
+    if(DEBUG){
+        printf("Saved:\n");
+        printf("Rows: %zu Cols: %zu Mines: %zu \n", ROWS,COLS,BOMBS);
 
-    printf("Mode: %d\n", mode);
-    printf("score: %d\n", score);
-    printf("Time: %d\n", loaded_time);
-
+        printf("Mode: %d\n", mode);
+        printf("score: %d\n", score);
+        printf("Time: %d\n", loaded_time);
+    }
     return 1;
 }
 
-int load(char* filename){
+// Funkcja pomocnicza wczytujaca zapis gry z pliku
+int Load(char* filename){
     FILE* file = fopen(filename, "rb");
     if(file == NULL){
         fprintf(stderr, "Error opening file\n");
@@ -177,21 +188,25 @@ int load(char* filename){
         mode_str = "Hard";
     }
 
-    printf("Loaded:\n");
-    printf("Rows: %zu Cols: %zu Mines: %zu \n", ROWS,COLS,BOMBS);
+    if(DEBUG){
+        printf("Loaded:\n");
+        printf("Rows: %zu Cols: %zu Mines: %zu \n", ROWS,COLS,BOMBS);
 
-    printf("Mode: %s\n", mode_str);
+        printf("Mode: %s\n", mode_str);
 
-    printf("score: %d\n", score);
+        printf("score: %d\n", score);
 
-    printf("Time: %d\n", loaded_time);
+        printf("Time: %d\n", loaded_time);
+    }
 
+    // ustawiamy flage zeby nie inicjowac planszy od nowa
     LOADED = 1;
     
     return 1;
 }
 
-void save_file_view(void){
+// Widok zapisywania gry podczas rozgrywki
+void SaveFileView(void){
     // Inicjalizacja okna
     const int screenWidth = SCALE * 400;
     const int screenHeight = SCALE * 200;
@@ -228,7 +243,7 @@ void save_file_view(void){
 
         if(IsKeyPressed(KEY_ENTER) && cursorPosition > 0 && !saved){
             loaded_time = (clock() - start) / 155000;
-            valid = save(filename);
+            valid = Save(filename);
             saved = 1;
         }
 
@@ -265,7 +280,8 @@ void save_file_view(void){
     CloseWindow();
 }
 
-int load_file_view(void){
+// Widok zaladowywania zapisu gry
+int LoadFileView(void){
     // Inicjalizacja okna
     const int screenWidth = SCALE * 400;
     const int screenHeight = SCALE * 200;
@@ -297,7 +313,7 @@ int load_file_view(void){
         }
 
         if(IsKeyPressed(KEY_ENTER) && cursorPosition > 0){
-            int valid  = load(filename);
+            int valid  = Load(filename);
             if(valid){
                 break;
             }
@@ -321,7 +337,8 @@ int load_file_view(void){
     return 1;
 }
 
-void main_game_view(void) {
+// Glowny widok gry 
+void MainGameView(void) {
     
     const int screenWidth =  COLS * CELL_SIZE;
     const int screenHeight =  ROWS * CELL_SIZE;
@@ -329,10 +346,7 @@ void main_game_view(void) {
     InitWindow(screenWidth, screenHeight, "Minesweeper");
     SetTargetFPS(60);
 
-    if(!LOADED){
-        InitBoard(board);
-        score = CountRevealedCell(board) * ((BOMBS*BOMBS)/(ROWS*COLS)); //Revaled field * muliplayer // multipayer = (BOMB^2) / (ROWS*COLS)
-    }
+    
     
     int win = 0;
 
@@ -344,6 +358,14 @@ void main_game_view(void) {
                 Vector2 mouse = GetMousePosition();
                 int col = (mouse.x ) / CELL_SIZE;
                 int row = (mouse.y - SCALE * 40) / CELL_SIZE;
+                if(firstcol == -1 && firstrow==-1){
+                    firstrow = row;
+                    firstcol = col;
+                    if(!LOADED){
+                        InitBoard(board,firstrow,firstcol);
+                        score = CountRevealedCell(board) * ((BOMBS*BOMBS)/(ROWS*COLS)); //Revaled field * muliplayer // multipayer = (BOMB^2) / (ROWS*COLS)
+                    }
+                }
                 if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
                     RevealCell(board, row, col, &gameOver);
                 }
@@ -355,14 +377,16 @@ void main_game_view(void) {
                     ToggleFlag(board, row, col);
                 }
             }else if(IsKeyPressed(KEY_S)){
-                save_file_view();
+                SaveFileView();
             }
         }
 
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
-        win = is_game_won(board);
+        if(firstcol != -1 && firstrow != -1){
+            win = IsGameWon(board);
+        }
 
         DrawBoard(board, gameOver,mode_str,score, (clock() - start)/(155000)+loaded_time);
 
@@ -414,8 +438,8 @@ void main_game_view(void) {
             }
 
              if(IsKeyPressed(KEY_ENTER) && cursorPosition > 0){
-                    save_top_player(nick, score);
-                    leaderboard_view();
+                    SaveTopPlayer(nick, score);
+                    LeaderboardView();
                     if(IsKeyPressed(KEY_ESCAPE)){
                         exit(0);
                     }
@@ -439,15 +463,17 @@ void main_game_view(void) {
     exit(0);
 }
 
-void gui(void){
-    int mode = mode_select_view();
+// Funkjca inicjalizujaca caly tryb graficzny 
+void GuiInit(void){
+    int mode = MenuView();
 
-    assert(mode == 1 || mode == 2 || mode == 3 || mode == 4);
+    if(!(mode == 1 || mode == 2 || mode == 3 || mode == 4)) return;
+
     mode_str = (mode == 1) ? "Easy" : (mode == 2) ? "Medium" : (mode==3) ?  "Hard": "**loaded**";
 
     if(mode == 4){
         Cell board[ROWS][COLS];
-        int valid = load_file_view(); 
+        int valid = LoadFileView(); 
         if(!valid) exit(0);
     }else{
         if(mode == 1){
@@ -466,5 +492,5 @@ void gui(void){
         clock_t start = clock();
         Cell board[ROWS][COLS];
     }
-    main_game_view();
+    MainGameView();
 }
