@@ -1,33 +1,27 @@
 CC = gcc
 CFLAGS = -lraylib -L src/RayLibGUI/Raylib/5.5/lib-I/opt/homebrew/include -Wextra -I./src
 
-SRC_DIR = src
-TEST_DIR = tests
-BUILD_DIR = build
-OBJ_DIR = $(BUILD_DIR)/obj
 
-TARGET = $(BUILD_DIR)/game
+SRC_FILES = $(wildcard src/**/*.c) $(wildcard src/*.c)
+OBJ_FILES = $(patsubst src/%.c,build/obj/%.o,$(SRC_FILES))
 
-SRC_FILES = $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/*.c)
-OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
+all: build/game
 
-all: $(TARGET)
-
-$(TARGET): $(OBJ_FILES)
-	@mkdir -p $(BUILD_DIR)
+build/game: $(OBJ_FILES)
+	@mkdir -p build
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+build/obj/%.o: src/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf build
 
-run: $(TARGET)
-	./$(TARGET)
+run: build/game
+	./build/game
 
-run_gui: $(TARGET)
-	./$(TARGET) -g
+run_gui: build/game
+	./build/game -g
 
 .PHONY: all clean run
