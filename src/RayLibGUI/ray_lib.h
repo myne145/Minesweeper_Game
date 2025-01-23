@@ -17,7 +17,7 @@ typedef struct {
 #define SCALE 2
 
 // Flaga trybu debugowania
-#define DEBUG 1
+#define DEBUG 0
 
 // Rozmiar komórki planszy
 #define CELL_SIZE (SCALE*40)
